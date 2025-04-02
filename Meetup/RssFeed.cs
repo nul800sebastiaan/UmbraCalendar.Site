@@ -32,14 +32,13 @@ public class RssController : RenderController
       
     //[ResponseCache(Duration = 1200)]
     [HttpGet]
-    public IActionResult Index()
+    public override IActionResult Index()
     {
         var blogCopyright = $"{DateTime.Now.Year} Umbracalendar";
-        var blogTitle = "Umbraco events on Meetup.com";
-        var blogDescription = "";
-        var blogUrl = "https://umbracalendar.com/";
-        var blogSlug = "/";
-        var feedId = "MeetupRss";
+        const string blogTitle = "Umbraco events on Meetup.com";
+        const string blogDescription = "";
+        const string blogUrl = "https://umbracalendar.com/";
+        const string feedId = "MeetupRss";
 
         var feed = new SyndicationFeed(blogTitle, blogDescription, new Uri(blogUrl), feedId, DateTime.Now)
         {
