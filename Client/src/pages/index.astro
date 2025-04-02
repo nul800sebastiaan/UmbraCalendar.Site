@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { OpenAPI, ContentResource, type CalendarEventContentModel } from '@/api';
+
+OpenAPI.BASE = import.meta.env.PUBLIC_BASE_URL;
+const calendarEvents = await ContentResource.getContent20({
+	filter: ['contentType:calendarEvent'], 
+	sort: ['dateFrom:asc']
+});
+---
+<Layout>
+	<h1>Astro</h1>
+	<ul>
+		{calendarEvents.items.map((event: CalendarEventContentModel) => (
+			<li id={event.id}>
+				<h2>{event.name}</h2>
+				<p set:html={event?.properties?.description}></p>
+				<a href={event?.route?.path}>Read more</a>
+			</li>
+		))}
+	</ul>
+</Layout>

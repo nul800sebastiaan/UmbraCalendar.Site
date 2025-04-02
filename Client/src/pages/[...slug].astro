@@ -1,0 +1,32 @@
+﻿---
+import Layout from '../layouts/Layout.astro';
+import {OpenAPI, ContentResource, type CalendarEventContentModel} from '@/api';
+
+export async function getStaticPaths() {
+    OpenAPI.BASE = import.meta.env.PUBLIC_BASE_URL;
+    let calendarEvents = await ContentResource.getContent20({
+        filter: ['contentType:calendarEvent'],
+        sort: ['dateFrom:asc']
+    });
+
+    return calendarEvents.items.map((event: CalendarEventContentModel) => ({
+        params: {slug: event.route?.path},
+        props: {calendarEvent: event},
+    }));
+}
+
+const {calendarEvent} = Astro.props;
+---
+
+<Layout>
+    <h1>{calendarEvent.name}</h1>
+    {calendarEvent.properties?.dateFrom && // tests if dateFrom is set - see https://docs.astro.build/en/basics/astro-syntax/#dynamic-html
+            <p>
+                <time datetime={new Date(calendarEvent.properties.dateFrom).toISOString()}>{new Date(calendarEvent.properties.dateFrom).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                })}</time>
+            </p>}
+    <div set:html={calendarEvent.properties?.description}></div>
+</Layout>
