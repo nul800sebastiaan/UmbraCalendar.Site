@@ -11,6 +11,7 @@ public class RegisterServices : IComposer
         builder.Services.AddSingleton<ICosmosService, CosmosService>();
         builder.Services.AddSingleton<Options>();
         builder.Services.AddSingleton<IMeetupService, MeetupService>();
+        builder.Services.AddSingleton<IUpcomingMeetupService, UpcomingMeetupService>();
         
         
         var externalSettingsSection =  builder.Config.GetSection("ExternalServices");
