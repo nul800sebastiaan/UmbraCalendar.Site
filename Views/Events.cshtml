@@ -35,6 +35,17 @@
     {
         otherGroups.Add(meetupGroup);
     }
+
+    var monthDetails = 0;
+    var yearDetails = 0;
+    if (!string.IsNullOrWhiteSpace(Context.Request.Query["month"]))
+    {
+        int.TryParse(Context.Request.Query["month"], out monthDetails);
+    }
+    if (!string.IsNullOrWhiteSpace(Context.Request.Query["year"]))
+    {
+        int.TryParse(Context.Request.Query["year"], out yearDetails);
+    }
 }
 
 <style>
@@ -92,6 +103,18 @@
         }
     }
 </table>
+
+@if (monthDetails > 0 && yearDetails > 0)
+{
+    var monthEvents = recentEvents.Where(x => DateTime.Parse(x.StartDateLocal).Month == monthDetails && DateTime.Parse(x.StartDateLocal).Year == yearDetails).ToList();
+    <h2>Events breakdown for @monthDetails-@yearDetails</h2>
+    <ul>
+        @foreach (var meetupEvent in monthEvents)
+        {
+            <li>@meetupEvent.Going attendees <a href="@meetupEvent.EventUrl" target="_blank">@meetupEvent.Title</a></li>
+        }
+    </ul>
+}
 
 <h2>Monthly stats - Events</h2>
 <table>

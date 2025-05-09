@@ -8,11 +8,11 @@
   <ItemGroup>
     <PackageReference Include="Cultiv.EnvironmentInspect" Version="1.0.3" />
     <PackageReference Include="Cultiv.Hangfire" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.48.0" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.49.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.4" />
     <PackageReference Include="Umbraco.AuthorizedServices" Version="0.4.1" />
-    <PackageReference Include="Umbraco.Cms" Version="13.7.2" />
-    <PackageReference Include="Umbraco.Community.DeliveryApiExtensions" Version="13.0.0" />
+    <PackageReference Include="Umbraco.Cms" Version="13.8.1" />
+    <PackageReference Include="Umbraco.Community.DeliveryApiExtensions" Version="13.1.1" />
     <PackageReference Include="uSync" Version="13.2.7" />
   </ItemGroup>
 
