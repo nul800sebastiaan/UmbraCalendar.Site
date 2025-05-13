@@ -1,7 +1,7 @@
 name: Deploy Images to GHCR
 
 env:
-  DOTNET_VERSION: '9.0.x'
+  DOTNET_VERSION: '8.0.x'
 
 on:
   push:
@@ -29,6 +29,9 @@ jobs:
               username: ${{github.actor}}
               password: ${{secrets.GITHUB_TOKEN}}
 
+          - name: 'Restore dotnet tools'
+            run: dotnet tool restore
+            
           - name: 'Build umbracalendar.site Image'
             run: |
               docker buildx build . --platform=linux/arm64 --tag ghcr.io/nul800sebastiaan/umbracalendar.site:latest
