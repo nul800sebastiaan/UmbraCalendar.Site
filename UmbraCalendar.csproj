@@ -14,6 +14,7 @@
     <PackageReference Include="Umbraco.Cms" Version="13.8.1" />
     <PackageReference Include="Umbraco.Community.DeliveryApiExtensions" Version="13.1.1" />
     <PackageReference Include="uSync" Version="13.2.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,4 +34,17 @@
     <RazorCompileOnPublish>false</RazorCompileOnPublish>
   </PropertyGroup>
   
+  <Target Name="GenerateSwagger" AfterTargets="Publish">
+    <!-- Define paths -->
+    <PropertyGroup>
+      <SwaggerOutputFile>$(PublishDir)wwwroot\swagger\delivery-swagger.json</SwaggerOutputFile>
+    </PropertyGroup>
+
+    <!-- Make sure the output directory exists -->
+    <MakeDir Directories="$(PublishDir)wwwroot\swagger" />
+
+    <!-- Run Swashbuckle CLI to generate swagger.json -->
+    <Exec Command="dotnet swagger tofile --output &quot;$(SwaggerOutputFile)&quot; &quot;$(TargetDir)$(ProjectName).dll&quot; delivery" />
+
+  </Target>
 </Project>
