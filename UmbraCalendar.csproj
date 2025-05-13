@@ -44,6 +44,7 @@
     <MakeDir Directories="$(PublishDir)wwwroot\swagger" />
 
     <!-- Run Swashbuckle CLI to generate swagger.json -->
+    <Exec Command="dotnet tool restore" />
     <Exec Command="dotnet swagger tofile --output &quot;$(SwaggerOutputFile)&quot; &quot;$(TargetDir)$(ProjectName).dll&quot; delivery" />
 
   </Target>
