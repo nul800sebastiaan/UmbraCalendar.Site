@@ -480,3 +480,4 @@ appsettings-schema.*.json
 
 /Hangfire.db
 /appsettings.*.json
+/global.json
