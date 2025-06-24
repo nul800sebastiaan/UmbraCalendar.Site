@@ -39,7 +39,7 @@ public class UpcomingMeetupService : IUpcomingMeetupService
             {
                 Title = meetupEvent.Title,
                 Description = mark.Transform(meetupEvent.Description),
-                Banner = meetupEvent.Image?.Url,
+                Banner = meetupEvent.FeaturedEventPhoto?.Url,
                 Location = fullAddress,
                 DateTimeFrom = DateTime.Parse(meetupEvent.StartDateTime),
                 DateTimeTo = DateTime.Parse(meetupEvent.EndDateTime),

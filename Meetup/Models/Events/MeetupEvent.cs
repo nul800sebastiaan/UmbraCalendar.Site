@@ -35,14 +35,14 @@ public class MeetupEvent
     public Venue? Venue { get; set; }
     [JsonPropertyName("onlineVenue")]
     public OnlineVenue? OnlineVenue { get; set; }
-    [JsonPropertyName("image")]
-    public Image? Image { get; set; }
+    [JsonPropertyName("featuredEventPhoto")]
+    public Image? FeaturedEventPhoto { get; set; }
     
-    [JsonPropertyName("tickets")]
-    public Tickets Tickets { get; set; }
+    [JsonPropertyName("rsvps")]
+    public Rsvps Rsvps { get; set; }
 }
 
-public class Tickets
+public class Rsvps
 {
     [JsonPropertyName("pageInfo")]
     public PageInfo PageInfo { get; set; }
@@ -64,11 +64,11 @@ public class Node
     [JsonPropertyName("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("user")]
-    public User User { get; set; }
+    [JsonPropertyName("member")]
+    public Member Member { get; set; }
 }
 
-public class User
+public class Member
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }

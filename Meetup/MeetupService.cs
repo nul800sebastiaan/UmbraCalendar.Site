@@ -67,7 +67,7 @@ public class MeetupService : IMeetupService
         
         // var responseRaw = _authorizedServiceCaller.SendRequestRawAsync(
 	       //  "meetup",
-	       //  "/gql",
+	       //  "/gql-ext",
 	       //  HttpMethod.Post,
 	       //  requestContent
         // ).Result;
@@ -77,7 +77,7 @@ public class MeetupService : IMeetupService
         // Can't await this one because the context.Writeline doesn't work then
         var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, MeetupEvents>(
 	        "meetup",
-	        "/gql",
+	        "/gql-ext",
 	        HttpMethod.Post,
 	        requestContent
         ).Result;
@@ -127,7 +127,7 @@ public class MeetupService : IMeetupService
         
         // var responseRaw = _authorizedServiceCaller.SendRequestRawAsync(
 	       //  "meetup",
-	       //  "/gql",
+	       //  "/gql-ext",
 	       //  HttpMethod.Post,
 	       //  requestContent
         // ).Result;
@@ -137,7 +137,7 @@ public class MeetupService : IMeetupService
         // Can't await this one because the context.Writeline doesn't work then
         var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, MeetupEvents>(
 	        "meetup",
-	        "/gql",
+	        "/gql-ext",
 	        HttpMethod.Post,
 	        requestContent
         ).Result;
@@ -178,8 +178,8 @@ public class MeetupService : IMeetupService
 	                             	 venue { name address city state postalCode country lat lng }
 	                             	 onlineVenue { type url }
 	                             	 group { groupPhoto { id baseUrl } country city urlname name timezone }
-	                             	 image { id baseUrl }
-	                             	 tickets {
+	                             	 featuredEventPhoto { id baseUrl }
+	                             	 rsvps {
 	                             	   pageInfo {
 	                             	     hasNextPage
 	                             	     endCursor
@@ -187,7 +187,7 @@ public class MeetupService : IMeetupService
 	                             	   edges {
 	                             	     node {
 	                             	       id
-	                             	       user {
+	                             	       member {
 	                             	         id
 	                             	         name
 	                             	         city
@@ -198,7 +198,7 @@ public class MeetupService : IMeetupService
 	                             	         memberPhoto {
 	                             	           source
 	                             	         }
-	                                             }
+	                             	       }
 	                             	     }
 	                             	   }
 	                             	 }
@@ -262,7 +262,7 @@ public class MeetupService : IMeetupService
 
 	    // var responseRaw = _authorizedServiceCaller.SendRequestRawAsync(
 	    //  "meetup",
-	    //  "/gql",
+	    //  "/gql-ext",
 	    //  HttpMethod.Post,
 	    //  requestContent
 	    // ).Result;
@@ -272,7 +272,7 @@ public class MeetupService : IMeetupService
 	    // Can't await this one because the context.Writeline doesn't work then
 	    var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, MeetupEvents>(
 		    "meetup",
-		    "/gql",
+		    "/gql-ext",
 		    HttpMethod.Post,
 		    requestContent
 	    ).Result;
@@ -318,7 +318,7 @@ public class MeetupService : IMeetupService
 
         var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, Groups>(
             "meetup",
-            "/gql",
+            "/gql-ext",
             HttpMethod.Post,
             requestContent
         ).Result;
@@ -383,7 +383,7 @@ public class MeetupService : IMeetupService
         // Can't await this one because the context.Writeline doesn't work then
         var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, Groups>(
 	        "meetup",
-	        "/gql",
+	        "/gql-ext",
 	        HttpMethod.Post,
 	        requestContent
         ).Result;
