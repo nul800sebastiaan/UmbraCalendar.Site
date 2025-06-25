@@ -10,14 +10,14 @@ public class MeetupEvents
 
 public class Data
 {
-    [JsonPropertyName("proNetworkByUrlname")]
-    public ProNetworkByUrlname MeetupNetwork { get; set; }
+    [JsonPropertyName("proNetwork")]
+    public ProNetwork MeetupNetwork { get; set; }
     
     [JsonPropertyName("groupByUrlname")]
     public GroupByUrlname GroupByUrlname { get; set; }
 }
 
-public class ProNetworkByUrlname
+public class ProNetwork
 {
     [JsonPropertyName("eventsSearch")]
     public EventsSearch EventsSearch { get; set; }
@@ -32,12 +32,15 @@ public class GroupByUrlname
     {
         set => EventsSearch = value;
     }
+    
+    [JsonPropertyName("events")]
+    public EventsSearch Events { get; set; }
 }
 
 public class EventsSearch
 {
-    [JsonPropertyName("count")]
-    public int Count { get; set; }
+    [JsonPropertyName("totalCount")]
+    public int TotalCount { get; set; }
     [JsonPropertyName("pageInfo")]
     public PageInfo PageInfo { get; set; }
     [JsonPropertyName("edges")]
@@ -52,7 +55,7 @@ public class Edges
 
 public class Group
 {
-    [JsonPropertyName("groupPhoto")]
+    [JsonPropertyName("keyGroupPhoto")]
     public Image Image { get; set; }
     [JsonPropertyName("country")]
     public string Country { get; set; }
@@ -101,6 +104,6 @@ public class Venue
     [JsonPropertyName("lat")]
     public double Latitude { get; set; }
 
-    [JsonPropertyName("lng")]
+    [JsonPropertyName("lon")]
     public double Longitude { get; set; }
 }

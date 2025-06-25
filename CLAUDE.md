@@ -8,7 +8,7 @@ UmbraCalendar is an Umbraco CMS-based calendar application that aggregates and d
 
 - **Backend**: ASP.NET Core 8.0 Umbraco CMS application with custom services for Meetup integration
 - **Frontend**: Astro-based client application for presentation
-- **Data**: CosmosDB for event storage, SQLite for CMS data
+- **Data**: LiteDB for event storage, SQLite for CMS data
 
 ## Architecture
 
@@ -16,7 +16,7 @@ UmbraCalendar is an Umbraco CMS-based calendar application that aggregates and d
 
 - **Umbraco CMS**: Content management system with custom document types for events and pages
 - **Meetup Integration**: GraphQL API client for fetching Meetup events via authorized services
-- **CosmosDB Service**: Data persistence layer for event storage and caching
+- **LiteDB Service**: Data persistence layer for event storage and caching
 - **Hangfire**: Background job processing for scheduled event imports
 - **Delivery API**: Umbraco's delivery API for headless content delivery
 - **Astro Client**: Static site generator consuming the delivery API
@@ -24,7 +24,7 @@ UmbraCalendar is an Umbraco CMS-based calendar application that aggregates and d
 ### Key Services
 
 - `MeetupService`: Handles Meetup API integration and data import
-- `CosmosService`: Manages CosmosDB operations with caching
+- `LiteDbService`: Manages LiteDB operations with caching
 - `UpcomingMeetupService`: Processes upcoming events
 - `RegisterServices`: Dependency injection configuration
 
@@ -83,11 +83,11 @@ docker run -p 8080:8080 umbracalendar
 
 ### Database
 - **CMS Database**: SQLite (development) - `umbracoDbDSN` in appsettings.json
-- **Event Storage**: CosmosDB - configured via `ExternalServices` section
+- **Event Storage**: LiteDB - configured via `ExternalServices:DatabasePath`
 
 ### External Services
 - **Meetup API**: Configured via Umbraco.AuthorizedServices
-- **CosmosDB**: Connection configured in `ExternalServices:CosmosDb`
+- **LiteDB**: Database path configured in `ExternalServices:DatabasePath`
 
 ### Environment Files
 - `appsettings.json`: Base configuration
@@ -99,7 +99,7 @@ docker run -p 8080:8080 umbracalendar
 
 - `/Calendar/`: Calendar-specific models
 - `/Client/`: Astro frontend application
-- `/CosmosDb/`: CosmosDB service implementation
+- `/Database/`: LiteDB service implementation
 - `/DeliveryApi/`: Custom delivery API extensions
 - `/Feed/`: RSS feed functionality
 - `/Jobs/`: Hangfire background jobs
@@ -127,7 +127,7 @@ docker run -p 8080:8080 umbracalendar
 ## Data Flow
 
 1. **Import**: Hangfire jobs fetch events from Meetup API
-2. **Storage**: Events stored in CosmosDB with caching
+2. **Storage**: Events stored in LiteDB with caching
 3. **Content**: Events managed via Umbraco backoffice
 4. **Delivery**: Content exposed via Delivery API
 5. **Frontend**: Astro client consumes API and generates static pages
@@ -135,8 +135,15 @@ docker run -p 8080:8080 umbracalendar
 ## Testing and Linting
 
 Currently no specific test or lint commands are configured. The project uses:
-- TypeScript checking in Astro client: `astro check`
+- TypeScript checking in Astro client: `astro check`  
 - .NET build validation: `dotnet build`
+
+## Storage Migration Notes
+
+The project has been migrated from CosmosDB to LiteDB:
+- Database file location: `umbraco/Data/UmbraCalendar.db`
+- All async operations maintained for consistency
+- Caching layer preserved for performance
 
 ## Background Jobs
 

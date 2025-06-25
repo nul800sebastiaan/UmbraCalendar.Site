@@ -3,7 +3,7 @@ using System.Text;
 using System.Xml;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
-using UmbraCalendar.CosmosDb;
+using UmbraCalendar.Database;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
@@ -13,19 +13,19 @@ namespace UmbraCalendar.Meetup;
 
 public class RssController : RenderController
 {
-    private readonly ICosmosService _cosmosService;
+    private readonly IDatabaseService _databaseService;
     private readonly IServiceProvider _serviceProvider;
     private readonly IUmbracoContextFactory _umbracoContextFactory;
     
     public RssController(ILogger<RenderController> logger, 
         ICompositeViewEngine compositeViewEngine, 
         IUmbracoContextAccessor umbracoContextAccessor,
-        ICosmosService cosmosService,
+        IDatabaseService databaseService,
         IServiceProvider serviceProvider,
         IUmbracoContextFactory umbracoContextFactory) 
         : base(logger, compositeViewEngine, umbracoContextAccessor)
     {
-        _cosmosService = cosmosService;
+        _databaseService = databaseService;
         _serviceProvider = serviceProvider;
         _umbracoContextFactory = umbracoContextFactory;
     }
@@ -78,7 +78,7 @@ public class RssController : RenderController
             }
         }
         
-        var upcomingEvents = _cosmosService.GetUpcomingMeetupEvents().Result;
+        var upcomingEvents = _databaseService.GetUpcomingMeetupEvents().Result;
         foreach (var meetupEvent in upcomingEvents)
         {
             var venueFormatted = string.Empty;

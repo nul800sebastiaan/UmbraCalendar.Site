@@ -5,7 +5,15 @@
       "Bash(dotnet build)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(python3:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(sudo rm:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet restore:*)"
     ],
     "deny": []
   }

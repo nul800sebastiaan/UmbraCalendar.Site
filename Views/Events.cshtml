@@ -1,8 +1,8 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Events>
-@using UmbraCalendar.CosmosDb
+@using UmbraCalendar.Database
 @using UmbraCalendar.Meetup
 @using UmbraCalendar.Meetup.Models.Groups
-@inject ICosmosService CosmosService
+@inject IDatabaseService DatabaseService
 @inject IMeetupService MeetupService
 @{
     Layout = "Main.cshtml";
@@ -16,8 +16,8 @@
     
     var availableAreas = await MeetupService.GetAvailableAreas();
     var meetupAreas = availableAreas.ToList();
-    var events = await CosmosService.GetAllMeetupEvents(DateTime.MinValue);
-    var currentGroups = await CosmosService.GetMeetupGroups();
+    var events = await DatabaseService.GetAllMeetupEvents(DateTime.MinValue);
+    var currentGroups = await DatabaseService.GetMeetupGroups();
     var activeGroups = new HashSet<MeetupGroup>();
 
     var recentEvents = events.Where(x => 

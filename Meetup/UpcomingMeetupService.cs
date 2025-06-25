@@ -1,23 +1,23 @@
 ﻿using HeyRed.MarkdownSharp;
 using UmbraCalendar.Calendar.Models;
-using UmbraCalendar.CosmosDb;
+using UmbraCalendar.Database;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace UmbraCalendar.Meetup;
 
 public class UpcomingMeetupService : IUpcomingMeetupService
 {
-    private readonly ICosmosService _cosmosService;
+    private readonly IDatabaseService _databaseService;
 
-    public UpcomingMeetupService(ICosmosService cosmosService)
+    public UpcomingMeetupService(IDatabaseService databaseService)
     {
-        _cosmosService = cosmosService;
+        _databaseService = databaseService;
     }
 
     public async Task<List<CalendarItem>> GetUpcomingMeetupEvents(List<CalendarEvent>? upcomingEvents)
     {
         var eventCalendar = new List<CalendarItem>();
-        var meetups = await _cosmosService.GetUpcomingMeetupEvents();
+        var meetups = await _databaseService.GetUpcomingMeetupEvents();
 
         var mark = new Markdown();
         foreach (var meetupEvent in meetups)
@@ -26,11 +26,15 @@ public class UpcomingMeetupService : IUpcomingMeetupService
             var country = "";
             if (meetupEvent.Venue != null)
             {
-                country = meetupEvent.Venue.Country.ToUpperInvariant();
+                if (meetupEvent.Venue.Country != null)
+                {
+                    country = meetupEvent.Venue.Country.ToUpperInvariant();
+                }
+                
                 var array = new[]
                 {
                     meetupEvent.Venue.Name, meetupEvent.Venue.Address, meetupEvent.Venue.City,
-                    meetupEvent.Venue.Country.ToUpperInvariant()
+                    country
                 };
                 fullAddress = string.Join(", ", array.Where(s => !string.IsNullOrEmpty(s)));
             }

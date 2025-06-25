@@ -10,14 +10,14 @@ public class Groups
 
 public class Data
 {
-    [JsonPropertyName("proNetworkByUrlname")]
-    public ProNetworkByUrlname ProNetworkByUrlname { get; set; }
+    [JsonPropertyName("proNetwork")]
+    public ProNetwork ProNetwork { get; set; }
     
     [JsonPropertyName("groupByUrlname")]
     public MeetupGroup MeetupGroup {  get; set; }
 }
 
-public class ProNetworkByUrlname
+public class ProNetwork
 {
     [JsonPropertyName("groupsSearch")]
     public GroupsSearch GroupsSearch { get; set; }
@@ -25,8 +25,8 @@ public class ProNetworkByUrlname
 
 public class GroupsSearch
 {
-    [JsonPropertyName("count")]
-    public int? Count { get; set; }
+    [JsonPropertyName("totalCount")]
+    public int? TotalCount { get; set; }
 
     [JsonPropertyName("pageInfo")]
     public PageInfo PageInfo { get; set; }

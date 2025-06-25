@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UmbraCalendar.CosmosDb;
+using UmbraCalendar.Database;
 using UmbraCalendar.Meetup.Models.Groups;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
@@ -13,7 +13,7 @@ namespace UmbraCalendar.Meetup.Controllers;
 
 public class MeetupUpdateInfoController : SurfaceController
 {
-    private readonly ICosmosService _cosmosService;
+    private readonly IDatabaseService _databaseService;
     
     public MeetupUpdateInfoController(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -22,23 +22,23 @@ public class MeetupUpdateInfoController : SurfaceController
         AppCaches appCaches,
         IProfilingLogger profilingLogger,
         IPublishedUrlProvider publishedUrlProvider,
-        ICosmosService cosmosService) 
+        IDatabaseService databaseService) 
         : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
     {
-        _cosmosService = cosmosService;
+        _databaseService = databaseService;
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditAction(MeetupGroup meetupGroup)
     {
-        var meetups = await _cosmosService.GetMeetupGroups();
+        var meetups = await _databaseService.GetMeetupGroups();
         var meetup = meetups.First(x => x.id == meetupGroup.id);
 
         if (!string.Equals(meetup.Area, meetupGroup.Area, StringComparison.InvariantCultureIgnoreCase))
         {
             meetup.Area = meetupGroup.Area;
-            var result = await _cosmosService.UpsertItemAsync(meetup, Constants.MeetupGroupsContainerId);
+            var result = await _databaseService.UpsertItemAsync(meetup, Constants.MeetupGroupsContainerId);
         }
         
         return RedirectToCurrentUmbracoPage();

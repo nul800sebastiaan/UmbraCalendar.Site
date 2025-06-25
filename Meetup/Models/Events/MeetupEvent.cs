@@ -22,19 +22,27 @@ public class MeetupEvent
     public string EventUrl { get; set; }
     [JsonPropertyName("description")]
     public string Description { get; set; }
-    [JsonPropertyName("going")]
-    public int Going { get; set; }
-    [JsonPropertyName("isOnline")]
-    public bool IsOnline { get; set; }
+    // going and isOnline fields no longer available in API
     [JsonPropertyName("group")]
     public Group Group { get; set; }
     [JsonPropertyName("eventType")]
     // ONLINE | PHYSICAL | HYBRID
     public string EventType { get; set; }
-    [JsonPropertyName("venue")]
-    public Venue? Venue { get; set; }
-    [JsonPropertyName("onlineVenue")]
-    public OnlineVenue? OnlineVenue { get; set; }
+    [JsonPropertyName("venues")]
+    public List<Venue>? Venues { get; set; }
+    
+    // Backward compatibility properties
+    [JsonIgnore]
+    public Venue? Venue => Venues?.FirstOrDefault();
+    
+    [JsonIgnore]
+    public OnlineVenue? OnlineVenue => EventType == "ONLINE" ? new OnlineVenue { Type = "ONLINE" } : null;
+    
+    [JsonIgnore]
+    public bool IsOnline => EventType == "ONLINE" || EventType == "HYBRID";
+    
+    [JsonIgnore]
+    public int Going => Rsvps?.Edges?.Count ?? 0;
     [JsonPropertyName("featuredEventPhoto")]
     public Image? FeaturedEventPhoto { get; set; }
     
@@ -97,6 +105,6 @@ public class Member
 
 public class MemberPhoto
 {
-    [JsonPropertyName("source")]
+    [JsonPropertyName("baseUrl")]
     public string Source { get; set; }
 }

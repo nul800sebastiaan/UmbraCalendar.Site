@@ -5,12 +5,12 @@ namespace UmbraCalendar.Meetup;
 
 public interface IMeetupService
 {
-    void ImportUpcomingMeetupEvents(PerformContext context);
+    Task ImportUpcomingMeetupEvents(PerformContext context);
     void GetUpcomingMeetupEvents(PerformContext context);
-    void ImportNetworkGroups(PerformContext context);
+    Task ImportNetworkGroups(PerformContext context);
     void GetMeetupGroups(PerformContext context);
     void ImportHistoricMeetupEvents(PerformContext context);
     Task<List<MeetupArea>> GetAvailableAreas();
-    void ImportMeetupGroup(PerformContext context, string urlName);
-    void ImportMeetupEventsForGroup(PerformContext context, string urlName, string type = "upcoming");
+    Task ImportMeetupGroup(PerformContext context, string urlName);
+    Task ImportMeetupEventsForGroup(PerformContext context, string urlName, string type = "upcoming");
 }
