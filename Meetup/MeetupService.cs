@@ -312,7 +312,7 @@ public class MeetupService : IMeetupService
 	        {
 		        group.Area = existingGroup.Area;
 	        }
-	        group.GroupAnalytics = new GroupAnalytics { TotalMembers = group.Stats.MemberCounts.All, TotalPastEvents = group.GroupAnalytics.TotalPastEvents };
+	        group.GroupAnalytics = new GroupAnalytics { TotalMembers = group.Stats.MemberCounts.All, TotalPastEvents = group.GroupAnalytics != null ? group.GroupAnalytics.TotalPastEvents : 0 };
 	        await _databaseService.UpsertItemAsync(group, Constants.MeetupGroupsContainerId);
             context.WriteLine($"Successfully imported group: {group.Name}");
         }

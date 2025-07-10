@@ -213,7 +213,7 @@
             var groups = currentGroups.Where(x => x.Area == area.Code);
             foreach (var group in groups)
             {
-                if (group.GroupAnalytics.TotalMembers != null)
+                if (group.GroupAnalytics != null && group.GroupAnalytics != null && group.GroupAnalytics.TotalMembers != null)
                 {
                     totalMembers += group.GroupAnalytics.TotalMembers.Value;
                 }
@@ -236,11 +236,8 @@
                 <td>
                     @foreach (var group in groups)
                     {
-                        if (group.GroupAnalytics.TotalMembers != null)
-                        {
-                            <a href="https://www.meetup.com/@group.Urlname" target="_blank">@group.Name</a>
-                            <br/>
-                        }
+                        <a href="https://www.meetup.com/@group.Urlname" target="_blank">@group.Name</a>
+                        <br/>
                     }
                 </td>
             </tr>
