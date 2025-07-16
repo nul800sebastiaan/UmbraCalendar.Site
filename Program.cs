@@ -30,11 +30,4 @@ app.UseUmbraco()
         u.UseWebsiteEndpoints();
     });
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor,
-    KnownNetworks = { }, // Empty this to allow any IP
-    KnownProxies = { },  // Empty this to allow any proxy
-});
-
 await app.RunAsync();
