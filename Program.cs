@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.HttpOverrides;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.CreateUmbracoBuilder()
@@ -27,5 +29,12 @@ app.UseUmbraco()
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
     });
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor,
+    KnownNetworks = { }, // Empty this to allow any IP
+    KnownProxies = { },  // Empty this to allow any proxy
+});
 
 await app.RunAsync();
