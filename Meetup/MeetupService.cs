@@ -78,7 +78,7 @@ public class MeetupService : IMeetupService
 
         if (response.Success && response.Result != null)
         {
-	        foreach (var edge in response.Result.Data.MeetupNetwork.EventsSearch.Edges)
+	        foreach (var edge in response.Result.Data.Data.MeetupNetwork.EventsSearch.Edges)
 	        {
 		        var meetupEvent = edge.MeetupEvent;
 		        context.WriteLine(
@@ -136,9 +136,9 @@ public class MeetupService : IMeetupService
         ).Result;
 
         // if response.Result.Data.GroupByUrlname is null, the group doesn't exist (any more)
-        if (response.Success && response.Result != null && response.Result.Data != null && response.Result.Data.GroupByUrlname != null)
+        if (response.Success && response.Result != null && response.Result.Data != null && response.Result.Data.Data.GroupByUrlname != null)
         {
-	        foreach (var edge in response.Result.Data.GroupByUrlname.Events.Edges)
+	        foreach (var edge in response.Result.Data.Data.GroupByUrlname.Events.Edges)
 	        {
 		        var meetupEvent = edge.MeetupEvent;
 		        context.WriteLine(
@@ -263,7 +263,7 @@ public class MeetupService : IMeetupService
 
 	    if (response.Success && response.Result != null)
 	    {
-		    return response.Result.Data.MeetupNetwork.EventsSearch;
+		    return response.Result.Data.Data.MeetupNetwork.EventsSearch;
 	    }
 	    else
 	    {
@@ -302,10 +302,10 @@ public class MeetupService : IMeetupService
         ).Result;
 
         // if response.Result.Data.MeetupGroup is null then the group used to exist but not any more
-        if (response.Success && response.Result != null && response.Result.Data != null && response.Result.Data.MeetupGroup != null)
+        if (response.Success && response.Result != null && response.Result.Data != null && response.Result.Data.Data.MeetupGroup != null)
         {
 	        var existingGroups = _databaseService.GetMeetupGroups().Result;
-	        var group = response.Result.Data.MeetupGroup;
+	        var group = response.Result.Data.Data.MeetupGroup;
 	        var existingGroup = existingGroups.FirstOrDefault(x => x.id == group.id);
 	        // Preserve added metadata
 	        if (existingGroup != null && !string.IsNullOrWhiteSpace(existingGroup.Area))
@@ -364,7 +364,7 @@ public class MeetupService : IMeetupService
         if (response.Success && response.Result != null)
         {
 	        var existingGroups = _databaseService.GetMeetupGroups().Result;
-			foreach (var edge in response.Result.Data.ProNetwork.GroupsSearch.Edges)
+			foreach (var edge in response.Result.Data.Data.ProNetwork.GroupsSearch.Edges)
 	        {
 		        var group = edge.MeetupGroup;
 		        context.WriteLine($"Processing Meetup group {group.Name} with {group.GroupAnalytics.TotalMembers} members and {group.GroupAnalytics.TotalPastEvents} past events");

@@ -482,3 +482,4 @@ appsettings-schema.*.json
 /appsettings.*.json
 /global.json
 /umbraco/Data/UmbraCalendar.db
+/Hangfire.db*
