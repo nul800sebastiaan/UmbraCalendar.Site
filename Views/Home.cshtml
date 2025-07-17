@@ -1,9 +1,26 @@
-﻿@using UmbraCalendar.Meetup
+@using UmbraCalendar.Meetup
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Home>
 @inject IUpcomingMeetupService UpcomingMeetupService;
 @{
     Layout = "Main.cshtml";
-    var nodes = Model.Children<CalendarEvent>()?.Where(x => x.DateFrom >= DateTime.Today).ToList();
+    
+    // Get calendar events from the Events folder's year subfolders
+    var eventsFolder = Model.Children.FirstOrDefault(x => x.ContentType.Alias == "events" && x.Name == "Events");
+    var nodes = new List<CalendarEvent>();
+    
+    if (eventsFolder != null)
+    {
+        // Get all calendar events from all year folders
+        foreach (var yearFolder in eventsFolder.Children.Where(x => x.ContentType.Alias == "year"))
+        {
+            var yearEvents = yearFolder.Children<CalendarEvent>()?.Where(x => x.DateFrom >= DateTime.Today);
+            if (yearEvents != null)
+            {
+                nodes.AddRange(yearEvents);
+            }
+        }
+    }
+    
     var eventCalendar = await UpcomingMeetupService.GetUpcomingMeetupEvents(nodes);
 }
 <main>
