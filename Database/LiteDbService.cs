@@ -7,10 +7,12 @@ using Umbraco.Extensions;
 
 namespace UmbraCalendar.Database;
 
-public class LiteDbService : IDatabaseService
+public class LiteDbService : IDatabaseService, IDisposable
 {
     private readonly string _databasePath;
     private readonly IAppPolicyCache _runtimeCache;
+    private readonly object _lockObject = new object();
+    private LiteDatabase? _database;
     private const int CacheTimespanShort = 5;
     private const int CacheTimespanMedium = 60;
     private const int CacheTimespanLong = 60 * 4;
@@ -30,11 +32,30 @@ public class LiteDbService : IDatabaseService
         }
     }
 
+    private LiteDatabase GetDatabase()
+    {
+        if (_database == null)
+        {
+            lock (_lockObject)
+            {
+                if (_database == null)
+                {
+                    var connectionString = new ConnectionString(_databasePath)
+                    {
+                        Connection = ConnectionType.Shared
+                    };
+                    _database = new LiteDatabase(connectionString);
+                }
+            }
+        }
+        return _database;
+    }
+
     public async Task<bool> UpsertItemAsync<T>(T item, string collectionName)
     {
         return await Task.Run(() =>
         {
-            using var db = new LiteDatabase(_databasePath);
+            var db = GetDatabase();
             var collection = db.GetCollection<T>(collectionName);
             
             // Try to get the id property using reflection for upsert logic
@@ -63,7 +84,7 @@ public class LiteDbService : IDatabaseService
         {
             return await Task.Run(() =>
             {
-                using var db = new LiteDatabase(_databasePath);
+                var db = GetDatabase();
                 var collection = db.GetCollection<MeetupEvent>(Constants.MeetupEventsContainerId);
                 
                 var startDate = DateTime.Now;
@@ -80,7 +101,7 @@ public class LiteDbService : IDatabaseService
         {
             return await Task.Run(() =>
             {
-                using var db = new LiteDatabase(_databasePath);
+                var db = GetDatabase();
                 var collection = db.GetCollection<MeetupGroup>(Constants.MeetupGroupsContainerId);
                 
                 return collection.FindAll().ToList();
@@ -98,7 +119,7 @@ public class LiteDbService : IDatabaseService
             
             return await Task.Run(() =>
             {
-                using var db = new LiteDatabase(_databasePath);
+                var db = GetDatabase();
                 var collection = db.GetCollection<MeetupEvent>(Constants.MeetupEventsContainerId);
                 
                 var meetupEvents = collection.Find(x => DateTime.Parse(x.StartDateTime) >= startDate).ToList();
@@ -119,5 +140,14 @@ public class LiteDbService : IDatabaseService
                 return meetupEvents;
             });
         }, TimeSpan.FromMinutes(CacheTimespanLong)) ?? Task.FromResult(new List<MeetupEvent>());
+    }
+
+    public void Dispose()
+    {
+        lock (_lockObject)
+        {
+            _database?.Dispose();
+            _database = null;
+        }
     }
 }
