@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using UmbraCalendar.Meetup.Models;
 
 namespace UmbraCalendar.Meetup.Models.Groups;
 
@@ -30,6 +31,15 @@ public class MeetupGroup
     
     [JsonPropertyName("area")]
     public string Area { get; set; }
+    
+    [JsonPropertyName("upcomingEvents")]
+    public EventsSearch UpcomingEvents { get; set; }
+
+    [JsonPropertyName("pastEvents")]
+    public EventsSearch PastEvents { get; set; }
+    
+    [JsonPropertyName("events")]
+    public EventsSearch Events { get; set; }
     
     // Backward compatibility properties
     [JsonIgnore]

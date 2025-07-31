@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
+using UmbraCalendar.Meetup.Models;
 
 namespace UmbraCalendar.Meetup.Models.Events;
 
@@ -6,51 +7,6 @@ public class MeetupEvents
 {
     [JsonPropertyName("data")]
     public Data Data { get; set; }
-}
-
-public class Data
-{
-    [JsonPropertyName("proNetwork")]
-    public ProNetwork MeetupNetwork { get; set; }
-    
-    [JsonPropertyName("groupByUrlname")]
-    public GroupByUrlname GroupByUrlname { get; set; }
-}
-
-public class ProNetwork
-{
-    [JsonPropertyName("eventsSearch")]
-    public EventsSearch EventsSearch { get; set; }
-}
-public class GroupByUrlname
-{
-    [JsonPropertyName("upcomingEvents")]
-    public EventsSearch EventsSearch { get; set; }
-
-    [JsonPropertyName("pastEvents")]
-    public EventsSearch PastEvents
-    {
-        set => EventsSearch = value;
-    }
-    
-    [JsonPropertyName("events")]
-    public EventsSearch Events { get; set; }
-}
-
-public class EventsSearch
-{
-    [JsonPropertyName("totalCount")]
-    public int TotalCount { get; set; }
-    [JsonPropertyName("pageInfo")]
-    public PageInfo PageInfo { get; set; }
-    [JsonPropertyName("edges")]
-    public Edges[] Edges { get; set; }
-}
-
-public class Edges
-{
-    [JsonPropertyName("node")]
-    public MeetupEvent MeetupEvent { get; set; }
 }
 
 public class Group
@@ -69,7 +25,6 @@ public class Group
     public string Timezone { get; set; }
     public string Area { get; set; }
 }
-
 
 public class OnlineVenue
 {
