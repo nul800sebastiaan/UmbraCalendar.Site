@@ -31,18 +31,19 @@
     <RazorCompileOnPublish>false</RazorCompileOnPublish>
   </PropertyGroup>
   
-  <Target Name="GenerateSwagger" AfterTargets="Publish">
-    <!-- Define paths -->
+  <Target Name="GenerateSwagger" BeforeTargets="Publish">
+    <!-- Generate swagger before publish to avoid file locking issues -->
     <PropertyGroup>
-      <SwaggerOutputFile>$(PublishDir)wwwroot\swagger\delivery-swagger.json</SwaggerOutputFile>
+      <SwaggerOutputFile>wwwroot\swagger\delivery-swagger.json</SwaggerOutputFile>
     </PropertyGroup>
 
     <!-- Make sure the output directory exists -->
-    <MakeDir Directories="$(PublishDir)wwwroot\swagger" />
+    <MakeDir Directories="wwwroot\swagger" />
 
-    <!-- Run Swashbuckle CLI to generate swagger.json -->
+    <!-- Run Swashbuckle CLI to generate swagger.json from built assembly -->
     <Exec Command="dotnet tool restore" />
     <Exec Command="dotnet swagger tofile --output &quot;$(SwaggerOutputFile)&quot; &quot;$(TargetDir)$(ProjectName).dll&quot; delivery" />
 
   </Target>
+
 </Project>
