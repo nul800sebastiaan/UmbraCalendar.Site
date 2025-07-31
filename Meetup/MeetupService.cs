@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Hangfire.Console;
 using Hangfire.Server;
 using UmbraCalendar.Database;
+using UmbraCalendar.Meetup.Models;
 using UmbraCalendar.Meetup.Models.Areas;
 using UmbraCalendar.Meetup.Models.Events;
 using UmbraCalendar.Meetup.Models.Groups;
@@ -25,16 +26,16 @@ public class MeetupService : IMeetupService
 	    _hostingEnvironment = hostingEnvironment;
     }
 
-    public async void GetUpcomingMeetupEvents(PerformContext context)
+    public void GetUpcomingMeetupEvents(PerformContext context)
     {
-	    var events = await _databaseService.GetUpcomingMeetupEvents();
-	    var test = events;
+	    var events= _databaseService.GetUpcomingMeetupEvents().Result;
+	    context.WriteLine($"{events.Count} events are in the cache");
     }
     
-    public async void GetMeetupGroups(PerformContext context)
+    public void GetMeetupGroups(PerformContext context)
     {
-	    var groups = await _databaseService.GetMeetupGroups();
-	    var test = groups;
+	    var groups = _databaseService.GetMeetupGroups().Result;
+		context.WriteLine($"{groups.Count} groups are in the cache");
     }
     
     public async Task ImportUpcomingMeetupEvents(PerformContext context)

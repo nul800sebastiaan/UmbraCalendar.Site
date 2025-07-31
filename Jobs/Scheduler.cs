@@ -35,9 +35,9 @@ public class Scheduler : IComposer
             RecurringJob.AddOrUpdate<IMeetupService>($"️➡️ Import Umbraco pro network Meetup groups", x =>
                 x.ImportNetworkGroups(null), Cron.Daily());
             
-            RecurringJob.AddOrUpdate<IMeetupService>($"📅 Get Upcoming Umbraco Meetup events", x =>
+            RecurringJob.AddOrUpdate<IMeetupService>($"🧠 Get Upcoming Umbraco Meetup events into cache", x =>
                 x.GetUpcomingMeetupEvents(null), GetTiming("0 */2 * * *"));
-            RecurringJob.AddOrUpdate<IMeetupService>($"Ⓜ️ Get pro network Meetup groups", x =>
+            RecurringJob.AddOrUpdate<IMeetupService>($"🧠️ Get pro network Meetup groups into cache", x =>
                 x.GetMeetupGroups(null), GetTiming("0 */2 * * *"));
             
             var outsideGroups = new List<string>
@@ -54,10 +54,10 @@ public class Scheduler : IComposer
                 RecurringJob.AddOrUpdate<IMeetupService>($"Ⓜ️ Get group {outsideGroup} which is not in our pro network", x =>
                     x.ImportMeetupGroup(null, outsideGroup), GetTiming("0 */2 * * *"));
                 
-                RecurringJob.AddOrUpdate<IMeetupService>($"Ⓜ️ Get upcoming events for group {outsideGroup}", x =>
+                RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import upcoming events for group {outsideGroup}", x =>
                     x.ImportMeetupEventsForGroup(null, outsideGroup, "upcoming"), GetTiming("30 */2 * * *"));
                 
-                RecurringJob.AddOrUpdate<IMeetupService>($"Ⓜ️ Get past events for group {outsideGroup}", x =>
+                RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import past events for group {outsideGroup}", x =>
                     x.ImportMeetupEventsForGroup(null, outsideGroup, "past"), Cron.Never);
             }
         }
