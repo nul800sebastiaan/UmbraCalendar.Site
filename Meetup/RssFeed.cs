@@ -44,6 +44,9 @@ public class RssController : RenderController
         {
             Copyright = new TextSyndicationContent(blogCopyright)
         };
+        
+        // Add RSS Event module namespace
+        feed.AttributeExtensions.Add(new XmlQualifiedName("ev", "http://www.w3.org/2000/xmlns/"), "http://purl.org/rss/1.0/modules/event/");
 
         var items = new List<SyndicationItem>();
 
@@ -71,8 +74,14 @@ public class RssController : RenderController
                     PublishDate = convertedDateFrom,
                     Id = umbracoEvent.Id.ToString(),
                     Summary = new TextSyndicationContent(description)
-
                 };
+                
+                // Add RSS Event module fields
+                item.ElementExtensions.Add("startdate", "http://purl.org/rss/1.0/modules/event/", convertedDateFrom.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                item.ElementExtensions.Add("enddate", "http://purl.org/rss/1.0/modules/event/", convertedDateTo.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.EventLocation ?? "");
+                item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", "Umbraco Community");
+                item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
                 
                 items.Add(item);
             }
@@ -84,7 +93,7 @@ public class RssController : RenderController
             var venueFormatted = string.Empty;
             if (meetupEvent.OnlineVenue != null)
             {
-                venueFormatted = $" - Online on {meetupEvent.OnlineVenue.Type}";
+                venueFormatted = $" - Online";
             }
             else if(meetupEvent.Venue != null)
             {
@@ -99,13 +108,33 @@ public class RssController : RenderController
             }
             var description = $"{meetupEvent.StartDateLocal} from {meetupEvent.StartTimeLocal} to {meetupEvent.EndTimeLocal}{venueFormatted}";
             var startDateTime = DateTimeOffset.Parse(meetupEvent.StartDateTime);
+            var endDateTime = DateTimeOffset.Parse(meetupEvent.EndDateTime);
             var item = new SyndicationItem(meetupEvent.Title, description, new Uri(meetupEvent.EventUrl))
             {
                 PublishDate = startDateTime,
                 Id = meetupEvent.id,
                 Summary = new TextSyndicationContent(description)
-                
             };
+            
+            // Add RSS Event module fields
+            item.ElementExtensions.Add("startdate", "http://purl.org/rss/1.0/modules/event/", startDateTime.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+            item.ElementExtensions.Add("enddate", "http://purl.org/rss/1.0/modules/event/", endDateTime.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+            
+            var location = string.Empty;
+            if (meetupEvent.OnlineVenue != null)
+            {
+                location = $"Online on {meetupEvent.OnlineVenue.Type}";
+            }
+            else if (meetupEvent.Venue != null)
+            {
+                var array = new[] { meetupEvent.Venue.Name, meetupEvent.Venue.Address, meetupEvent.Venue.City, meetupEvent.Venue.Country };
+                location = string.Join(", ", array.Where(s => !string.IsNullOrEmpty(s)));
+            }
+            
+            item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", location);
+            item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", meetupEvent.Group?.Name ?? "");
+            item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", meetupEvent.EventType?.ToLower() ?? "meetup");
+            
             items.Add(item);
         }
 
