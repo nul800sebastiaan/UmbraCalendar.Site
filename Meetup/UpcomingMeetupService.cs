@@ -55,6 +55,7 @@ public class UpcomingMeetupService : IUpcomingMeetupService
                 Source = "Meetup",
                 Organizer = meetupEvent.Group.Name,
                 Country = country,
+                TimeZone = meetupEvent.Group.Timezone,
                 Going = meetupEvent.Going,
                 EventType = meetupEvent.EventType
             };

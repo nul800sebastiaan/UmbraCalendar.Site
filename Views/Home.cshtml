@@ -94,11 +94,6 @@
                                             fullTimeDetails = "";
                                         }
                                     }
-                                    var append = "Local time";
-                                    if (!string.IsNullOrWhiteSpace(item.Country))
-                                    {
-                                        append = "Local time in " + item.Country;
-                                    }
                                 }
                                 <div class="event-time">
                                     @{
@@ -125,7 +120,7 @@
                                     
                                     <span class="flag" data-attendance-type="@(attendanceType)">@(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(attendanceType))</span>
                                     
-                                    <p>@fullTimeDetails @append</p>
+                                    <p>@fullTimeDetails &mdash; @item.TimeZone?.Replace("\"", "")</p>
                                 </div>
                                 <details>
                                     <summary>Full Details</summary>
