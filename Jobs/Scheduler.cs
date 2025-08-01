@@ -46,7 +46,6 @@ public class Scheduler : IComposer
                 "cape-town-umbraco-meetup-group",
                 "umbraco-nepal", 
                 "umbraco-germany",
-                "wellington-umbraco-meetup-group",
                 "dutch-umbraco-user-group"
             };
             foreach (var outsideGroup in outsideGroups)
