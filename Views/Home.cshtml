@@ -34,6 +34,10 @@
         {
             foreach (var item in eventCalendar)
             {
+                if (item.DateTimeTo.Hour == 0 && item.DateTimeTo.Minute == 0)
+                {
+                    item.DateTimeTo = item.DateTimeTo.AddMinutes(-1);
+                }
                 <div class="timeline-row">
                     <div class="date">
                         @{
@@ -91,7 +95,7 @@
                                             fullTimeDetails = $"{item.DateTimeFrom.ToString("HH:mm")}-{item.DateTimeTo.ToString("HH:mm")}";
                                         }
                                         else {
-                                            fullTimeDetails = "";
+                                            fullTimeDetails = $"{item.DateTimeFrom.ToString("MMM dd HH:mm")} — {item.DateTimeTo.ToString("MMM dd HH:mm")}";
                                         }
                                     }
                                 }
@@ -119,8 +123,16 @@
                                         *@
                                     
                                     <span class="flag" data-attendance-type="@(attendanceType)">@(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(attendanceType))</span>
-                                    
-                                    <p>@fullTimeDetails &mdash; @item.TimeZone?.Replace("\"", "")</p>
+                                    @if (!item.IsMultiDay && item.Source == "Meetup")
+                                    {
+                                        var append = " — " + item.TimeZone?.Replace("\"", "");
+                                        
+                                        <p class="fromTo" data-isoISO8601-time-start="@item.DateTimeFrom.ToString("o")" data-isoISO8601-time-end="@item.DateTimeTo.ToString("o")">@fullTimeDetails@(item.TimeZone != null ? append : null)</p>
+                                    }
+                                    @if(item.Url != null && item.Source != "Meetup")
+                                    {
+                                        <p >@fullTimeDetails local time</p>
+                                    }
                                 </div>
                                 <details>
                                     <summary>Full Details</summary>
