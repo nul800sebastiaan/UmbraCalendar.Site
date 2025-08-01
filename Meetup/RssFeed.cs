@@ -63,11 +63,11 @@ public class RssController : RenderController
                 
                 var convertedDateFrom = DateTime.SpecifyKind(umbracoEvent.DateFrom, DateTimeKind.Local);
                 var convertedDateTo = DateTime.SpecifyKind(umbracoEvent.DateTo, DateTimeKind.Local);
-                var description = $"{convertedDateFrom:yyyy-MM-dd} from {convertedDateFrom:HH:mm} to {convertedDateTo:HH:mm} - {umbracoEvent.EventLocation}";
+                var description = $"{convertedDateFrom:yyyy-MM-dd} from {convertedDateFrom:HH:mm} to {convertedDateTo:HH:mm} ({TimeZoneInfo.Local.DisplayName}) - {umbracoEvent.EventLocation}";
                 
                 if (umbracoEvent.DateFrom.ToString("yyyy-MM-dd") != umbracoEvent.DateTo.ToString("yyyy-MM-dd"))
                 {
-                    description = $"{umbracoEvent.DateFrom:yyyy-MM-dd} to {umbracoEvent.DateTo:yyyy-MM-dd} - {umbracoEvent.EventLocation}";
+                    description = $"{umbracoEvent.DateFrom:yyyy-MM-dd} to {umbracoEvent.DateTo:yyyy-MM-dd} ({TimeZoneInfo.Local.DisplayName}) - {umbracoEvent.EventLocation}";
                 }
                 var item = new SyndicationItem(umbracoEvent.Name, description, new Uri(umbracoEvent.EventLink.Url))
                 {
@@ -106,7 +106,7 @@ public class RssController : RenderController
             {
                 venueFormatted = " - Needs a location";
             }
-            var description = $"{meetupEvent.StartDateLocal} from {meetupEvent.StartTimeLocal} to {meetupEvent.EndTimeLocal}{venueFormatted}";
+            var description = $"{meetupEvent.StartDateLocal} from {meetupEvent.StartTimeLocal} to {meetupEvent.EndTimeLocal} ({meetupEvent.Group?.Timezone}){venueFormatted}";
             var startDateTime = DateTimeOffset.Parse(meetupEvent.StartDateTime);
             var endDateTime = DateTimeOffset.Parse(meetupEvent.EndDateTime);
             var item = new SyndicationItem(meetupEvent.Title, description, new Uri(meetupEvent.EventUrl))

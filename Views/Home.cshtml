@@ -88,11 +88,11 @@
                                 @{
                                     string fullTimeDetails;
                                     if (item.Source == "Meetup") {
-                                        fullTimeDetails = $"{item.StartTimeLocal}-{item.EndTimeLocal}";
+                                        fullTimeDetails = $"{item.StartTimeLocal}—{item.EndTimeLocal}";
                                     }
                                     else {
                                         if (!item.IsMultiDay) {
-                                            fullTimeDetails = $"{item.DateTimeFrom.ToString("HH:mm")}-{item.DateTimeTo.ToString("HH:mm")}";
+                                            fullTimeDetails = $"{item.DateTimeFrom.ToString("HH:mm")}—{item.DateTimeTo.ToString("HH:mm")}";
                                         }
                                         else {
                                             fullTimeDetails = $"{item.DateTimeFrom.ToString("MMM dd HH:mm")} — {item.DateTimeTo.ToString("MMM dd HH:mm")}";
@@ -131,7 +131,7 @@
                                     }
                                     @if(item.Url != null && item.Source != "Meetup")
                                     {
-                                        <p >@fullTimeDetails local time</p>
+                                        <p >@fullTimeDetails — @item.TimeZone</p>
                                     }
                                 </div>
                                 <details>

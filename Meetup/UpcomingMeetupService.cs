@@ -79,6 +79,7 @@ public class UpcomingMeetupService : IUpcomingMeetupService
                     Url = calendarEvent.EventLink?.Url,
                     OnlineAvailable = calendarEvent.OnlineAttendance,
                     Tags = (calendarEvent.Tags ?? Array.Empty<string>()).ToList(),
+                    TimeZone = calendarEvent.TimezoneIdentifier,
                     Source = "Manual",
                     Country = calendarEvent.Country
                 };
