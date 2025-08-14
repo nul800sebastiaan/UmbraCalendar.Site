@@ -1,3 +1,5 @@
+using UmbraCalendar.Jobs;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.CreateUmbracoBuilder()
@@ -8,6 +10,8 @@ builder.CreateUmbracoBuilder()
     .Build();
 
 WebApplication app = builder.Build();
+
+Hangfire.GlobalJobFilters.Filters.Add(new FailureThresholdFilter(app.Services.GetRequiredService<IConfiguration>()));
 
 await app.BootUmbracoAsync();
 
