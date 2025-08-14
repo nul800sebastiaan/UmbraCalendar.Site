@@ -19,17 +19,17 @@ public class FailureThresholdFilter : IServerFilter
 
     public void OnPerformed(PerformedContext filterContext)
     {
-        int.TryParse(_configuration["ExternalServices:ErrorThreshold"], out var errorThreshold);
-        if (errorThreshold == 0)
-        {
-            errorThreshold = 25;
-        }
-        
         if (filterContext.Exception == null)
         {
             return;
         }
         
+        int.TryParse(_configuration["ExternalServices:ErrorThreshold"], out var errorThreshold);
+        if (errorThreshold == 0)
+        {
+            errorThreshold = 25;
+        }
+
         _failureCount++;
 
         if (_failureCount <= errorThreshold)
