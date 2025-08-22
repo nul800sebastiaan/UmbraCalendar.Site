@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hangfire.Console;
 using Hangfire.Server;
@@ -383,6 +384,45 @@ public class MeetupService : IMeetupService
         {
 	        context.WriteLine($"Something went wrong, error: '{response.Exception?.Message}', trace: '{response.Exception?.StackTrace}'");
         }
+    }
+
+    public async Task TryForceRefreshToken(PerformContext context)
+    {
+	    var rawResponse = "";
+	    try
+	    {
+		    const string query = """
+	                           query ($urlname: ID!) {  proNetwork (urlname: $urlname) {  description} }
+	                           """;
+
+		    var requestContent = new MeetupRequest
+		    {
+			    Query = query,
+			    Variables = new { urlname = "umbraco" }
+		    };
+	      
+		    var response = await _authorizedServiceCaller.SendRequestAsync<MeetupRequest, object>(
+			    "meetup",
+			    "/gql-ext",
+			    HttpMethod.Post,
+			    requestContent
+		    );
+		    
+		    rawResponse = response.Result?.RawResponse;
+		    if (response.Success)
+		    {
+			    var token = await _authorizedServiceCaller.GetOAuth2AccessToken("meetup");
+			    var tokenString = token.Result;
+			    var handler = new JwtSecurityTokenHandler();
+			    var jwt = handler.ReadJwtToken(tokenString);
+			    var expires = jwt.ValidTo.ToLocalTime().ToString("s"); 
+			    context.WriteLine($"Token refresh attempt succeeded. Token expires {expires}");
+		    }
+	    }
+		catch (Exception e)
+	    {
+		    context.WriteLine($"Token refresh check got raw response: {rawResponse}");
+	    }
     }
     
     public async Task<List<MeetupArea>> GetAvailableAreas()

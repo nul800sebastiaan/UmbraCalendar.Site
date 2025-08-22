@@ -59,6 +59,10 @@ public class Scheduler : IComposer
                 RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import past events for group {outsideGroup}", x =>
                     x.ImportMeetupEventsForGroup(null, outsideGroup, "past"), Cron.Never);
             }
+            
+            RecurringJob.AddOrUpdate<IMeetupService>($"♻️ Try refresh OAuth token", x =>
+                                                                    // Cron for "every 5 minutes"
+                x.TryForceRefreshToken(null), GetTiming("*/5 * * * *"));
         }
         
         private static string GetTiming(string timing)
