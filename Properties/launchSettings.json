@@ -20,7 +20,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:44384;http://localhost:4108",
+      "applicationUrl": "https://test.umbracalendar.com;https://localhost:44384;http://localhost:4108",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }      
