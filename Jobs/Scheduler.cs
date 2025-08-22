@@ -29,8 +29,7 @@ public class Scheduler : IComposer
             if(_runtimeState.Level < RuntimeLevel.Run) return;
             
             RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import upcoming Umbraco Meetup events", x =>
-                // TODO: remove hack - this runs every 30 minutes so that the meetup OAuth token is refreshed before it expires
-                x.ImportUpcomingMeetupEvents(null), "0,30 * * * *");
+                x.ImportUpcomingMeetupEvents(null), "0 */4 * * *");
             RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import historic Umbraco Meetup events", x =>
                 x.ImportHistoricMeetupEvents(null), Cron.Never);
             RecurringJob.AddOrUpdate<IMeetupService>($"️➡️ Import Umbraco pro network Meetup groups", x =>
