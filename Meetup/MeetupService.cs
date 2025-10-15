@@ -172,7 +172,7 @@ public class MeetupService : IMeetupService
 	                             	 venues { name address city state postalCode country lat lon }
 	                             	 group { keyGroupPhoto { id baseUrl } country city urlname name timezone }
 	                             	 featuredEventPhoto { id baseUrl }
-	                             	 rsvps {
+	                             	 rsvps(first: 100) {
 	                             	   pageInfo {
 	                             	     hasNextPage
 	                             	     endCursor
