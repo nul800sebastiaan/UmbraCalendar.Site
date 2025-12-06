@@ -9,7 +9,7 @@ public interface IMeetupService
     void GetUpcomingMeetupEvents(PerformContext context);
     Task ImportNetworkGroups(PerformContext context);
     void GetMeetupGroups(PerformContext context);
-    void ImportHistoricMeetupEvents(PerformContext context);
+    Task ImportHistoricMeetupEvents(PerformContext context);
     Task<List<MeetupArea>> GetAvailableAreas();
     Task ImportMeetupGroup(PerformContext context, string urlName);
     Task ImportMeetupEventsForGroup(PerformContext context, string urlName, string type = "upcoming");

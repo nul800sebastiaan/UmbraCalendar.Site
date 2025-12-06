@@ -80,11 +80,12 @@ public class MeetupService : IMeetupService
 
         if (response.Success && response.Result != null)
         {
-	        foreach (var edge in response.Result.Data.Data.MeetupNetwork.EventsSearch.Edges)
+	        foreach (var edge in response.Result.Data?.Data.MeetupNetwork.EventsSearch.Edges)
 	        {
 		        var meetupEvent = edge.MeetupEvent;
 		        context.WriteLine(
 			        $"Meetup group {meetupEvent.Group.UrlName} has an event in {meetupEvent.Venue?.Name ?? "[online?]"} on {meetupEvent.StartDateLocal} titled {meetupEvent.Title} - more info: {meetupEvent.EventUrl}");
+		        await FetchAllRsvpsForEvent(meetupEvent, context);
 		        await _databaseService.UpsertItemAsync(meetupEvent, Constants.MeetupEventsContainerId);
 	        }
         }
@@ -145,6 +146,7 @@ public class MeetupService : IMeetupService
 		        var meetupEvent = edge.MeetupEvent;
 		        context.WriteLine(
 			        $"Meetup group {meetupEvent.Group.UrlName} has an event in {meetupEvent.Venue?.Name ?? "[online?]"} on {meetupEvent.StartDateLocal} titled {meetupEvent.Title} - more info: {meetupEvent.EventUrl}");
+		        await FetchAllRsvpsForEvent(meetupEvent, context);
 		        await _databaseService.UpsertItemAsync(meetupEvent, Constants.MeetupEventsContainerId);
 	        }
         }
@@ -201,7 +203,92 @@ public class MeetupService : IMeetupService
 	    return eventDataQuery;
     }
 
-    public void ImportHistoricMeetupEvents(PerformContext context)
+    private async Task FetchAllRsvpsForEvent(MeetupEvent meetupEvent, PerformContext context)
+    {
+	    if (meetupEvent.Rsvps?.PageInfo?.HasNextPage != true)
+	    {
+		    return; // No more pages to fetch
+	    }
+
+	    var allRsvps = new List<RsvpEdge>(meetupEvent.Rsvps.Edges);
+	    var endCursor = meetupEvent.Rsvps.PageInfo.EndCursor;
+
+	    while (endCursor != null)
+	    {
+		    const string query = """
+		                         query($eventId: ID!, $cursor: String) {
+		                           event(id: $eventId) {
+		                             rsvps(first: 100, after: $cursor) {
+		                               pageInfo {
+		                                 hasNextPage
+		                                 endCursor
+		                               }
+		                               edges {
+		                                 node {
+		                                   id
+		                                   member {
+		                                     id
+		                                     name
+		                                     city
+		                                     state
+		                                     zip
+		                                     country
+		                                     bio
+		                                     memberPhoto {
+		                                       baseUrl
+		                                     }
+		                                   }
+		                                 }
+		                               }
+		                             }
+		                           }
+		                         }
+		                         """;
+
+		    var requestContent = new MeetupRequest
+		    {
+			    Query = query,
+			    Variables = new { eventId = meetupEvent.id, cursor = endCursor }
+		    };
+
+		    var response = await _authorizedServiceCaller.SendRequestAsync<MeetupRequest, EventRsvpsResponse>(
+			    "meetup",
+			    "/gql-ext",
+			    HttpMethod.Post,
+			    requestContent
+		    );
+
+		    if (response.Success && response.Result != null)
+		    {
+			    var result = response.Result;
+			    var eventData = result.Data;
+			    if (eventData?.DataWrapper?.EventWrapper?.Rsvps != null)
+			    {
+				    var rsvps = eventData.DataWrapper.EventWrapper.Rsvps;
+				    allRsvps.AddRange(rsvps.Edges);
+
+				    if (rsvps.PageInfo.HasNextPage)
+				    {
+					    endCursor = rsvps.PageInfo.EndCursor;
+				    }
+				    else
+				    {
+					    endCursor = null; // Exit the loop
+				    }
+			    }
+		    }
+		    else
+		    {
+			    context.WriteLine($"Failed to fetch additional RSVPs for event {meetupEvent.Title}: {response.Exception?.Message}");
+			    break;
+		    }
+	    }
+
+	    meetupEvent.Rsvps.Edges = allRsvps;
+	    context.WriteLine($"Fetched total of {allRsvps.Count} RSVPs for event {meetupEvent.Title}");
+    }
+
+    public async Task ImportHistoricMeetupEvents(PerformContext context)
     {
 	    var hasNextPage = true;
 	    var endCursor = "null";
@@ -213,12 +300,13 @@ public class MeetupService : IMeetupService
 			    context.WriteLine("Response for event search was null, no events found");
 			    return;
 		    }
-		    
+
 		    foreach (var edge in response.Edges)
 		    {
 			    var meetupEvent = edge.MeetupEvent;
 			    context.WriteLine($"Meetup group {meetupEvent.Group.UrlName} has an event in {meetupEvent.Venue?.Name ?? "[online?]"} on {meetupEvent.StartDateLocal} titled {meetupEvent.Title} - more info: {meetupEvent.EventUrl}");
-			    var result = _databaseService.UpsertItemAsync(meetupEvent, Constants.MeetupEventsContainerId).Result;
+			    await FetchAllRsvpsForEvent(meetupEvent, context);
+			    await _databaseService.UpsertItemAsync(meetupEvent, Constants.MeetupEventsContainerId);
 		    }
 
 		    hasNextPage = response.PageInfo.HasNextPage;
@@ -442,4 +530,22 @@ public class MeetupRequest
     [JsonPropertyName("variables")] public object? Variables { get; set; } = null;
 
     [JsonPropertyName("operationName")] public string? OperationName { get; set; } = null;
+}
+
+public class EventRsvpsResponse
+{
+    [JsonPropertyName("data")]
+    public EventRsvpsDataWrapper DataWrapper { get; set; }
+}
+
+public class EventRsvpsDataWrapper
+{
+    [JsonPropertyName("event")]
+    public EventWithRsvpsWrapper EventWrapper { get; set; }
+}
+
+public class EventWithRsvpsWrapper
+{
+    [JsonPropertyName("rsvps")]
+    public Models.Events.Rsvps Rsvps { get; set; }
 }
