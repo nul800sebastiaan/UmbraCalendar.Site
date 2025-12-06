@@ -54,37 +54,40 @@ public class RssController : RenderController
         using var serviceScope = _serviceProvider.CreateScope();
         var query = serviceScope.ServiceProvider.GetRequiredService<IPublishedContentQuery>();
         var rootNode = query.ContentAtRoot().FirstOrDefault();
-        var eventsNode = rootNode?.Children().OfType<Events>().FirstOrDefault();
+        var eventsNode = rootNode?.Children().OfType<Events>();
         
         if (eventsNode != null)
         {
-            foreach (var umbracoEvent in eventsNode.Descendants().OfType<CalendarEvent>().Where(x => x.DateTo >= DateTime.Today))
+            foreach (var node in eventsNode)
             {
-                if (umbracoEvent.EventLink?.Url == null) continue;
-                
-                var convertedDateFrom = DateTime.SpecifyKind(umbracoEvent.DateFrom, DateTimeKind.Local);
-                var convertedDateTo = DateTime.SpecifyKind(umbracoEvent.DateTo, DateTimeKind.Local);
-                var description = $"{convertedDateFrom:yyyy-MM-dd} from {convertedDateFrom:HH:mm} to {convertedDateTo:HH:mm} ({TimeZoneInfo.Local.DisplayName}) - {umbracoEvent.EventLocation}";
-                
-                if (umbracoEvent.DateFrom.ToString("yyyy-MM-dd") != umbracoEvent.DateTo.ToString("yyyy-MM-dd"))
+                foreach (var umbracoEvent in node.Descendants().OfType<CalendarEvent>().Where(x => x.DateTo >= DateTime.Today))
                 {
-                    description = $"{umbracoEvent.DateFrom:yyyy-MM-dd} to {umbracoEvent.DateTo:yyyy-MM-dd} ({TimeZoneInfo.Local.DisplayName}) - {umbracoEvent.EventLocation}";
-                }
-                var item = new SyndicationItem(umbracoEvent.Name, description, new Uri(umbracoEvent.EventLink.Url))
-                {
-                    PublishDate = convertedDateFrom,
-                    Id = umbracoEvent.Id.ToString(),
-                    Summary = new TextSyndicationContent(description)
-                };
-                
-                // Add RSS Event module fields
-                item.ElementExtensions.Add("startdate", "http://purl.org/rss/1.0/modules/event/", convertedDateFrom.ToString("yyyy-MM-ddTHH:mm:sszzz"));
-                item.ElementExtensions.Add("enddate", "http://purl.org/rss/1.0/modules/event/", convertedDateTo.ToString("yyyy-MM-ddTHH:mm:sszzz"));
-                item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.EventLocation ?? "");
-                item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", "Umbraco Community");
-                item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
-                
-                items.Add(item);
+                    if (umbracoEvent.EventLink?.Url == null) continue;
+                    
+                    var convertedDateFrom = DateTime.SpecifyKind(umbracoEvent.DateFrom, DateTimeKind.Local);
+                    var convertedDateTo = DateTime.SpecifyKind(umbracoEvent.DateTo, DateTimeKind.Local);
+                    var description = $"{convertedDateFrom:yyyy-MM-dd} from {convertedDateFrom:HH:mm} to {convertedDateTo:HH:mm} ({TimeZoneInfo.Local.DisplayName}) - {umbracoEvent.EventLocation}";
+                    
+                    if (umbracoEvent.DateFrom.ToString("yyyy-MM-dd") != umbracoEvent.DateTo.ToString("yyyy-MM-dd"))
+                    {
+                        description = $"{umbracoEvent.DateFrom:yyyy-MM-dd} to {umbracoEvent.DateTo:yyyy-MM-dd} ({TimeZoneInfo.Local.DisplayName}) - {umbracoEvent.EventLocation}";
+                    }
+                    var item = new SyndicationItem(umbracoEvent.Name, description, new Uri(umbracoEvent.EventLink.Url))
+                    {
+                        PublishDate = convertedDateFrom,
+                        Id = umbracoEvent.Id.ToString(),
+                        Summary = new TextSyndicationContent(description)
+                    };
+                    
+                    // Add RSS Event module fields
+                    item.ElementExtensions.Add("startdate", "http://purl.org/rss/1.0/modules/event/", convertedDateFrom.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                    item.ElementExtensions.Add("enddate", "http://purl.org/rss/1.0/modules/event/", convertedDateTo.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                    item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.EventLocation ?? "");
+                    item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", "Umbraco Community");
+                    item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
+                    
+                    items.Add(item);
+                }                
             }
         }
         
