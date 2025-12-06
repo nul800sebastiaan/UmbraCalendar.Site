@@ -19,6 +19,8 @@ public class MeetupEvent
     public string EndDateTime { get; set; }
     public string EndTimeLocal => EndDateTime.Split("T").Skip(1).First().Substring(0, 5);
     public string EndDateLocal => EndDateTime.Split("T").First();
+    [JsonPropertyName("createdTime")]
+    public string CreatedTime { get; set; }
     [JsonPropertyName("eventUrl")]
     public string EventUrl { get; set; }
     [JsonPropertyName("description")]

@@ -44,7 +44,13 @@ public class RssController : RenderController
         {
             Copyright = new TextSyndicationContent(blogCopyright)
         };
-        
+
+        // Add Atom namespace
+        feed.AttributeExtensions.Add(new XmlQualifiedName("atom", "http://www.w3.org/2000/xmlns/"), "http://www.w3.org/2005/Atom");
+
+        // Capture feed URL for atom:link (added manually later)
+        var feedUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+
         // Add RSS Event module namespace
         feed.AttributeExtensions.Add(new XmlQualifiedName("ev", "http://www.w3.org/2000/xmlns/"), "http://purl.org/rss/1.0/modules/event/");
 
@@ -74,8 +80,8 @@ public class RssController : RenderController
                     }
                     var item = new SyndicationItem(umbracoEvent.Name, description, new Uri(umbracoEvent.EventLink.Url))
                     {
-                        PublishDate = convertedDateFrom,
-                        Id = umbracoEvent.Id.ToString(),
+                        PublishDate = umbracoEvent.UpdateDate,
+                        Id = umbracoEvent.Key.ToString(),
                         Summary = new TextSyndicationContent(description)
                     };
                     
@@ -113,9 +119,10 @@ public class RssController : RenderController
             var description = $"{meetupEvent.StartDateLocal} from {meetupEvent.StartTimeLocal} to {meetupEvent.EndTimeLocal} ({meetupEvent.Group?.Timezone}){venueFormatted}";
             var startDateTime = DateTimeOffset.Parse(meetupEvent.StartDateTime);
             var endDateTime = DateTimeOffset.Parse(meetupEvent.EndDateTime);
+            var createdTime = !string.IsNullOrEmpty(meetupEvent.CreatedTime) ? DateTimeOffset.Parse(meetupEvent.CreatedTime) : DateTimeOffset.Now;
             var item = new SyndicationItem(meetupEvent.Title, description, new Uri(meetupEvent.EventUrl))
             {
-                PublishDate = startDateTime,
+                PublishDate = createdTime,
                 Id = meetupEvent.id,
                 Summary = new TextSyndicationContent(description)
             };
@@ -127,7 +134,7 @@ public class RssController : RenderController
             var location = string.Empty;
             if (meetupEvent.OnlineVenue != null)
             {
-                location = $"Online on {meetupEvent.OnlineVenue.Type}";
+                location = "Online";
             }
             else if (meetupEvent.Venue != null)
             {
@@ -160,6 +167,15 @@ public class RssController : RenderController
             xmlWriter.Flush();
         }
 
-        return File(stream.ToArray(), "application/rss+xml; charset=utf-8");
+        // Insert stylesheet reference and atom:link after XML declaration
+        var xmlString = Encoding.UTF8.GetString(stream.ToArray());
+        var xmlWithStylesheet = xmlString.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<?xml-stylesheet type=\"text/xsl\" href=\"/rss-style.xsl\"?>");
+
+        // Add atom:link with rel="self" after <lastBuildDate>
+        var atomLink = $"<atom:link href=\"{feedUrl}\" rel=\"self\" type=\"application/rss+xml\" />";
+        var xmlWithAtomLink = xmlWithStylesheet.Replace("</lastBuildDate>", $"</lastBuildDate>\n    {atomLink}");
+
+        return Content(xmlWithAtomLink, "application/xml; charset=utf-8");
     }
 }

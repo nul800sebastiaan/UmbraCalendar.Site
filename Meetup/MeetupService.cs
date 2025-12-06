@@ -171,6 +171,7 @@ public class MeetupService : IMeetupService
 	                             	 eventUrl
 	                             	 description
 	                             	 eventType
+	                             	 createdTime
 	                             	 venues { name address city state postalCode country lat lon }
 	                             	 group { keyGroupPhoto { id baseUrl } country city urlname name timezone }
 	                             	 featuredEventPhoto { id baseUrl }
