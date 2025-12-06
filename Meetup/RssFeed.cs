@@ -54,10 +54,11 @@ public class RssController : RenderController
         using var serviceScope = _serviceProvider.CreateScope();
         var query = serviceScope.ServiceProvider.GetRequiredService<IPublishedContentQuery>();
         var rootNode = query.ContentAtRoot().FirstOrDefault();
+        var eventsNode = rootNode?.Children().OfType<Events>().FirstOrDefault();
         
-        if (rootNode != null)
+        if (eventsNode != null)
         {
-            foreach (var umbracoEvent in rootNode.Children.OfType<CalendarEvent>().Where(x => x.DateTo >= DateTime.Today))
+            foreach (var umbracoEvent in eventsNode.Descendants().OfType<CalendarEvent>().Where(x => x.DateTo >= DateTime.Today))
             {
                 if (umbracoEvent.EventLink?.Url == null) continue;
                 
