@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cultiv.Hangfire" Version="5.0.0" />
+    <PackageReference Include="Cultiv.Hangfire" Version="5.2.0" />
     <PackageReference Include="LiteDB" Version="5.0.21" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.0" />
     <PackageReference Include="Umbraco.AuthorizedServices" Version="17.0.0" />
