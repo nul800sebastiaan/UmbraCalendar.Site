@@ -91,6 +91,7 @@ public class RssController : RenderController
                     item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.EventLocation ?? "");
                     item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", "Umbraco Community");
                     item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
+                    item.ElementExtensions.Add("hqOrganizedEvent", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.HqOrganizedEvent.ToString().ToLower());
                     
                     items.Add(item);
                 }                
@@ -145,7 +146,8 @@ public class RssController : RenderController
             item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", location);
             item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", meetupEvent.Group?.Name ?? "");
             item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", meetupEvent.EventType?.ToLower() ?? "meetup");
-            
+            item.ElementExtensions.Add("hqOrganizedEvent", "http://purl.org/rss/1.0/modules/event/", "false");
+
             items.Add(item);
         }
 

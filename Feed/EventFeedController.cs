@@ -28,7 +28,8 @@ public class EventFeedController : ControllerBase
                 Date = eventItem.DateTimeFrom,
                 Name = eventItem.Title,
                 Organizer = eventItem.Organizer,
-                ImageUrl = eventItem.Banner
+                ImageUrl = eventItem.Banner,
+                HqOrganizedEvent = eventItem.HqOrganizedEvent
             };
             feedItems.Add(feedItem);
         }

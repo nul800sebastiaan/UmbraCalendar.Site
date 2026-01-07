@@ -81,7 +81,8 @@ public class UpcomingMeetupService : IUpcomingMeetupService
                     Tags = (calendarEvent.Tags ?? Array.Empty<string>()).ToList(),
                     TimeZone = calendarEvent.TimezoneIdentifier,
                     Source = "Manual",
-                    Country = calendarEvent.Country
+                    Country = calendarEvent.Country,
+                    HqOrganizedEvent = calendarEvent.HqOrganizedEvent
                 };
                 
                 var eventType = "PHYSICAL"; // default type

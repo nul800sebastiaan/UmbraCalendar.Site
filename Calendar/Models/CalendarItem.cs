@@ -22,6 +22,7 @@ public class CalendarItem
     public string? Country { get; set; }
     public string? TimeZone { get; set; }
     public int Going { get; set; }
-    
+    public bool HqOrganizedEvent { get; set; }
+
     public bool IsMultiDay => DateTimeFrom.Date != DateTimeTo.Date;
 }
