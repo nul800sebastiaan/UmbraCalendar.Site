@@ -1,6 +1,7 @@
 ﻿using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using UmbraCalendar.Database;
@@ -54,6 +55,9 @@ public class RssController : RenderController
         // Add RSS Event module namespace
         feed.AttributeExtensions.Add(new XmlQualifiedName("ev", "http://www.w3.org/2000/xmlns/"), "http://purl.org/rss/1.0/modules/event/");
 
+        // Add custom namespace for UmbraCalendar extensions
+        feed.AttributeExtensions.Add(new XmlQualifiedName("umbracalendar", "http://www.w3.org/2000/xmlns/"), "https://umbracalendar.com/rss/");
+
         var items = new List<SyndicationItem>();
 
         using var _ = _umbracoContextFactory.EnsureUmbracoContext();
@@ -91,7 +95,9 @@ public class RssController : RenderController
                     item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.EventLocation ?? "");
                     item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", "Umbraco Community");
                     item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
-                    item.ElementExtensions.Add("hqOrganizedEvent", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.HqOrganizedEvent.ToString().ToLower());
+                    item.ElementExtensions.Add(new XElement(
+                        XName.Get("hqOrganizedEvent", "https://umbracalendar.com/rss/"),
+                        umbracoEvent.HqOrganizedEvent.ToString().ToLower()));
                     
                     items.Add(item);
                 }                
@@ -146,7 +152,9 @@ public class RssController : RenderController
             item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", location);
             item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", meetupEvent.Group?.Name ?? "");
             item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", meetupEvent.EventType?.ToLower() ?? "meetup");
-            item.ElementExtensions.Add("hqOrganizedEvent", "http://purl.org/rss/1.0/modules/event/", "false");
+            item.ElementExtensions.Add(new XElement(
+                XName.Get("hqOrganizedEvent", "https://umbracalendar.com/rss/"),
+                "false"));
 
             items.Add(item);
         }
