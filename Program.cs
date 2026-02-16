@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using UmbraCalendar.Jobs;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -37,4 +37,5 @@ app.UseUmbraco()
 
 
 await app.RunAsync();
+
 
