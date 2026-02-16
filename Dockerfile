@@ -24,9 +24,12 @@ RUN mkdir umbraco/Data
 RUN mkdir umbraco/Data/TEMP
 RUN mkdir umbraco/Logs
 RUN mkdir wwwroot/media
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys
 RUN chown $APP_UID umbraco --recursive
 RUN chown $APP_UID wwwroot/media --recursive
 RUN chown $APP_UID Views --recursive
 RUN chown $APP_UID uSync --recursive
+RUN chown $APP_UID /home/app/.aspnet --recursive
 USER $APP_UID
+
 ENTRYPOINT ["dotnet", "UmbraCalendar.dll"]
