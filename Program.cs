@@ -10,10 +10,12 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+builder.Services.Configure<ForwardedHeadersOptions>(options =>  
+{                                                                                                                                                   
+  options.ForwardedHeaders =                                  
+      ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+  options.KnownNetworks.Clear();
+  options.KnownProxies.Clear();
 });
 
 WebApplication app = builder.Build();
@@ -42,6 +44,7 @@ app.UseUmbraco()
 
 
 await app.RunAsync();
+
 
 
 
