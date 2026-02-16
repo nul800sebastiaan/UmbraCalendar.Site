@@ -3,13 +3,6 @@ using UmbraCalendar.Jobs;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Persist Data Protection keys to a stable location for Docker
-// This ensures OAuth tokens and antiforgery tokens can be decrypted after container restarts
-var keysDirectory = Path.Combine(AppContext.BaseDirectory, "umbraco", "Data", "DataProtection-Keys");
-Directory.CreateDirectory(keysDirectory);
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory));
-
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
@@ -35,5 +28,6 @@ app.UseUmbraco()
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
     });
+
 
 await app.RunAsync();
