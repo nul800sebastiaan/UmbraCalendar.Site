@@ -18,6 +18,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 WebApplication app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseForwardedHeaders();
+}
+
 Hangfire.GlobalJobFilters.Filters.Add(new FailureThresholdFilter(app.Services.GetRequiredService<IConfiguration>()));
 
 await app.BootUmbracoAsync();
@@ -37,5 +42,6 @@ app.UseUmbraco()
 
 
 await app.RunAsync();
+
 
 
