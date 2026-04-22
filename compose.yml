@@ -1,0 +1,25 @@
+services:
+  umbracalendar:
+    container_name: umbracalendar-live
+    image: ghcr.io/nul800sebastiaan/umbracalendar.site:latest
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Umbraco__CMS__Security__BackOfficeHost=https://umbracalendar.com
+    volumes:
+      - data:/app/umbraco/Data
+      - logs:/app/umbraco/Logs
+      - media:/app/wwwroot/media
+      - dataprotection:/home/app/.aspnet/DataProtection-Keys
+      - /home/sebastiaan/umbracalendar/Hangfire.db:/app/Hangfire.db
+      - /home/sebastiaan/umbracalendar/appsettings.Production.json:/app/appsettings.Production.json
+    networks:
+      - shared
+volumes:
+  data: null
+  logs: null
+  media: null
+  dataprotection: null
+networks:
+  shared:
+    external: true
