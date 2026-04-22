@@ -16,6 +16,8 @@ services:
     networks:
       - default
       - shared
+     ports:
+      - "8080:80"      
 volumes:
   data: null
   logs: null
