@@ -14,10 +14,8 @@ services:
       - /home/sebastiaan/umbracalendar/Hangfire.db:/app/Hangfire.db
       - /home/sebastiaan/umbracalendar/appsettings.Production.json:/app/appsettings.Production.json
     networks:
-      - default
       - shared
      ports:
-      - "8080:80"      
 volumes:
   data: null
   logs: null
