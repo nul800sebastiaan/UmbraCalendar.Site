@@ -15,7 +15,6 @@ services:
       - /home/sebastiaan/umbracalendar/appsettings.Production.json:/app/appsettings.Production.json
     networks:
       - shared
-     ports:
 volumes:
   data: null
   logs: null
