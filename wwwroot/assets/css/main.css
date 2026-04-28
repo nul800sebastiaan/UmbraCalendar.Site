@@ -336,9 +336,21 @@ details h2 {
 
 /* Cancelled --------------------------------- */
 
-.event.is-cancelled .event-title a {
+.timeline-row.is-cancelled .date h2,
+.timeline-row.is-cancelled .event-organizer,
+.timeline-row.is-cancelled .event-title a {
     text-decoration: line-through;
     opacity: 0.6;
+}
+
+.timeline-row.is-cancelled .event-time {
+    display: none;
+}
+
+.timeline-row.is-cancelled .date .cancelled-badge {
+    display: inline-block;
+    margin-bottom: 0.4em;
+    margin-right: 0;
 }
 
 .cancelled-badge {

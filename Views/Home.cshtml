@@ -38,8 +38,12 @@
                 {
                     item.DateTimeTo = item.DateTimeTo.AddMinutes(-1);
                 }
-                <div class="timeline-row">
+                <div class="timeline-row @(item.IsCancelled ? "is-cancelled" : "")">
                     <div class="date">
+                        @if (item.IsCancelled)
+                        {
+                            <span class="cancelled-badge">Cancelled</span>
+                        }
                         @{
                             string dateDetails;
                             string dayDetails;
@@ -66,7 +70,7 @@
                         }
                     </div>
                     <div class="events">
-                        <div class="event @(item.IsCancelled ? "is-cancelled" : "")">
+                        <div class="event">
                             @if (!string.IsNullOrWhiteSpace(item.Organizer))
                             {
                                 <img src="~/assets/images/@(item.Source)_Logo.png?height=25" alt="" class="source-logo" />
