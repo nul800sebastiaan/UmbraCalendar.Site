@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:ev="http://purl.org/rss/1.0/modules/event/">
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:ev="http://purl.org/rss/1.0/modules/event/" xmlns:umbracalendar="https://umbracalendar.com/rss/">
   <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
   <xsl:template match="/">
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -133,6 +133,26 @@
             font-size: 0.85em;
             border-top: 1px solid #e0e0e0;
           }
+          .cancelled-badge {
+            display: inline-block;
+            background: #c0392b;
+            color: #fff;
+            padding: 0.15em 0.6em;
+            border-radius: 1em;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            vertical-align: middle;
+            margin-right: 0.5em;
+          }
+          .item.is-cancelled h2 a {
+            text-decoration: line-through;
+            opacity: 0.6;
+          }
+          .item.is-cancelled .item-description,
+          .item.is-cancelled .event-details {
+            opacity: 0.6;
+          }
         </style>
       </head>
       <body>
@@ -159,8 +179,15 @@
 
           <div class="items">
             <xsl:for-each select="/rss/channel/item">
-              <div class="item">
+              <div>
+                <xsl:attribute name="class">
+                  <xsl:text>item</xsl:text>
+                  <xsl:if test="umbracalendar:cancelled = 'true'"> is-cancelled</xsl:if>
+                </xsl:attribute>
                 <h2>
+                  <xsl:if test="umbracalendar:cancelled = 'true'">
+                    <span class="cancelled-badge">Cancelled</span>
+                  </xsl:if>
                   <a href="{link}" target="_blank">
                     <xsl:value-of select="title"/>
                   </a>
