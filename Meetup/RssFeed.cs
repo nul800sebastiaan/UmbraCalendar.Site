@@ -98,7 +98,10 @@ public class RssController : RenderController
                     item.ElementExtensions.Add(new XElement(
                         XName.Get("hqOrganizedEvent", "https://umbracalendar.com/rss/"),
                         umbracoEvent.HqOrganizedEvent.ToString().ToLower()));
-                    
+                    item.ElementExtensions.Add(new XElement(
+                        XName.Get("cancelled", "https://umbracalendar.com/rss/"),
+                        "false"));
+
                     items.Add(item);
                 }                
             }
@@ -155,6 +158,9 @@ public class RssController : RenderController
             item.ElementExtensions.Add(new XElement(
                 XName.Get("hqOrganizedEvent", "https://umbracalendar.com/rss/"),
                 "false"));
+            item.ElementExtensions.Add(new XElement(
+                XName.Get("cancelled", "https://umbracalendar.com/rss/"),
+                meetupEvent.IsCancelled.ToString().ToLower()));
 
             items.Add(item);
         }

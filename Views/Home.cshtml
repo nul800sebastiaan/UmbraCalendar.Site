@@ -66,7 +66,7 @@
                         }
                     </div>
                     <div class="events">
-                        <div class="event">
+                        <div class="event @(item.IsCancelled ? "is-cancelled" : "")">
                             @if (!string.IsNullOrWhiteSpace(item.Organizer))
                             {
                                 <img src="~/assets/images/@(item.Source)_Logo.png?height=25" alt="" class="source-logo" />
@@ -83,7 +83,7 @@
                                 @if (!string.IsNullOrWhiteSpace(item.EventHost)) {
                                     <h3 class="event-organizer">@item.EventHost</h3>
                                 }
-                                <h4 class="event-title"><a href="@item.Url">@item.Title</a></h4>
+                                <h4 class="event-title">@if (item.IsCancelled) { <span class="cancelled-badge">Cancelled</span> }<a href="@item.Url">@item.Title</a></h4>
 
                                 @{
                                     string fullTimeDetails;
