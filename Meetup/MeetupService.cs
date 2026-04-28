@@ -43,12 +43,18 @@ public class MeetupService : IMeetupService
     {
         context.WriteLine("Starting");
 
+        await ImportEventsByStatus(context, "UPCOMING", filterToFutureOnly: false);
+        await ImportEventsByStatus(context, "CANCELLED", filterToFutureOnly: true);
+    }
+
+    private async Task ImportEventsByStatus(PerformContext context, string status, bool filterToFutureOnly)
+    {
         var eventDataQuery = GetEventDataQuery();
-        
+
         var query = $$"""
                       query($urlname: ID!) {
                       	 proNetwork(urlname: $urlname) {
-                      	   eventsSearch(input: { first: 100, filter: { status: "UPCOMING" } }) {
+                      	   eventsSearch(input: { first: 100, filter: { status: "{{status}}" } }) {
                       	     {{eventDataQuery}}
                       	   }
                       	 }
@@ -60,15 +66,6 @@ public class MeetupService : IMeetupService
             Query = query,
             Variables = new { urlname = "umbraco" }
         };
-        
-        // var responseRaw = _authorizedServiceCaller.SendRequestRawAsync(
-	       //  "meetup",
-	       //  "/gql-ext",
-	       //  HttpMethod.Post,
-	       //  requestContent
-        // ).Result;
-        //
-        // var res = responseRaw;
 
         // Can't await this one because the context.Writeline doesn't work then
         var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, MeetupEvents>(
@@ -80,18 +77,23 @@ public class MeetupService : IMeetupService
 
         if (response.Success && response.Result != null)
         {
+	        var now = DateTime.Now;
 	        foreach (var edge in response.Result.Data?.Data.MeetupNetwork.EventsSearch.Edges)
 	        {
 		        var meetupEvent = edge.MeetupEvent;
+		        if (filterToFutureOnly && DateTime.TryParse(meetupEvent.StartDateTime, out var startDate) && startDate < now)
+		        {
+			        continue;
+		        }
 		        context.WriteLine(
-			        $"Meetup group {meetupEvent.Group.UrlName} has an event in {meetupEvent.Venue?.Name ?? "[online?]"} on {meetupEvent.StartDateLocal} titled {meetupEvent.Title} - more info: {meetupEvent.EventUrl}");
+			        $"[{status}] Meetup group {meetupEvent.Group.UrlName} has an event in {meetupEvent.Venue?.Name ?? "[online?]"} on {meetupEvent.StartDateLocal} titled {meetupEvent.Title} - more info: {meetupEvent.EventUrl}");
 		        await FetchAllRsvpsForEvent(meetupEvent, context);
 		        await _databaseService.UpsertItemAsync(meetupEvent, Constants.MeetupEventsContainerId);
 	        }
         }
         else
         {
-	        context.WriteLine($"Something went wrong, error: '{response.Exception?.Message}', trace: '{response.Exception?.StackTrace}'");
+	        context.WriteLine($"Something went wrong fetching {status} events, error: '{response.Exception?.Message}', trace: '{response.Exception?.StackTrace}'");
         }
     }
 
