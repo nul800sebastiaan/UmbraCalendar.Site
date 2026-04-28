@@ -333,3 +333,24 @@ details h2 {
 .flag[data-attendance-type="virtual"] {
     background-color: #F8B4DB;
 }
+
+/* Cancelled --------------------------------- */
+
+.event.is-cancelled .event-title a {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.cancelled-badge {
+    display: inline-block;
+    font-size: var(--fs-200);
+    text-transform: uppercase;
+    padding: .1em .5em;
+    margin-right: .4em;
+    border-radius: 1em;
+    background-color: #c0392b;
+    color: #fff;
+    font-weight: var(--fw-700);
+    vertical-align: middle;
+    white-space: nowrap;
+}

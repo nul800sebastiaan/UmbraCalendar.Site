@@ -57,7 +57,8 @@ public class UpcomingMeetupService : IUpcomingMeetupService
                 Country = country,
                 TimeZone = meetupEvent.Group.Timezone,
                 Going = meetupEvent.Going,
-                EventType = meetupEvent.EventType
+                EventType = meetupEvent.EventType,
+                IsCancelled = meetupEvent.IsCancelled
             };
             eventCalendar.Add(item);
         }

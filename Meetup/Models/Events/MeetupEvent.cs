@@ -31,6 +31,11 @@ public class MeetupEvent
     [JsonPropertyName("eventType")]
     // ONLINE | PHYSICAL | HYBRID
     public string EventType { get; set; }
+    [JsonPropertyName("status")]
+    // ACTIVE | CANCELLED | PAST | DRAFT
+    public string? Status { get; set; }
+    [JsonIgnore]
+    public bool IsCancelled => string.Equals(Status, "CANCELLED", StringComparison.OrdinalIgnoreCase);
     [JsonPropertyName("venues")]
     public List<Venue>? Venues { get; set; }
     
