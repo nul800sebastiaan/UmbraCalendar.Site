@@ -4,6 +4,7 @@ using UmbraCalendar.Database;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Extensions;
 
 namespace UmbraCalendar.Feed.V1;
 
@@ -61,6 +62,7 @@ public class FeedV1Controller : ControllerBase
                             ? null
                             : umbracoEvent.EventLocation,
                         Organizer = umbracoEvent.EventHost,
+                        ImageUrl = umbracoEvent.BannerImage?.MediaUrl(),
                         AttendanceMode = ManualAttendanceMode(
                             umbracoEvent.EventLocation, umbracoEvent.OnlineAttendance),
                         IsHqOrganized = umbracoEvent.HqOrganizedEvent,
@@ -86,6 +88,7 @@ public class FeedV1Controller : ControllerBase
                 EndsAt = DateTimeOffset.Parse(meetupEvent.EndDateTime, CultureInfo.InvariantCulture),
                 Location = FormatVenue(meetupEvent),
                 Organizer = meetupEvent.Group?.Name,
+                ImageUrl = meetupEvent.FeaturedEventPhoto?.Url,
                 AttendanceMode = MeetupAttendanceMode(meetupEvent.EventType),
                 IsHqOrganized = false,
                 IsCancelled = meetupEvent.IsCancelled,

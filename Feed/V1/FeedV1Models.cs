@@ -24,6 +24,7 @@ public class FeedEvent
     public DateTimeOffset EndsAt { get; set; }
     public string? Location { get; set; }
     public string? Organizer { get; set; }
+    public string? ImageUrl { get; set; }
     public string AttendanceMode { get; set; } = "inPerson";
     public bool IsHqOrganized { get; set; }
     public bool IsCancelled { get; set; }
