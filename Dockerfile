@@ -14,6 +14,8 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./UmbraCalendar.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
 FROM base AS final
+ARG GIT_SHA=unknown
+ENV GIT_SHA=$GIT_SHA
 WORKDIR /app
 COPY --from=publish /app/publish .
 # We need to make sure that the user running the app has write access to the umbraco folder, in order to write logs and other files.
