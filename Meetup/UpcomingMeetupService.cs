@@ -86,14 +86,25 @@ public class UpcomingMeetupService : IUpcomingMeetupService
                     HqOrganizedEvent = calendarEvent.HqOrganizedEvent
                 };
                 
-                var eventType = "PHYSICAL"; // default type
+                string eventType;
                 switch (calendarEvent.EventLocation)
                 {
                     case "Online event":
-                        eventType = "VIRTUAL";
+                        eventType = "ONLINE";
                         break;
                     case "Hybrid event":
                         eventType = "HYBRID";
+                        break;
+                    default:
+                        var hasLocation = !string.IsNullOrWhiteSpace(calendarEvent.EventLocation);
+                        if (calendarEvent.OnlineAttendance)
+                        {
+                            eventType = hasLocation ? "HYBRID" : "ONLINE";
+                        }
+                        else
+                        {
+                            eventType = "PHYSICAL";
+                        }
                         break;
                 }
 

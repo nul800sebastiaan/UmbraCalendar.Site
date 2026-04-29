@@ -94,7 +94,7 @@ public class RssController : RenderController
                     item.ElementExtensions.Add("enddate", "http://purl.org/rss/1.0/modules/event/", convertedDateTo.ToString("yyyy-MM-ddTHH:mm:sszzz"));
                     item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", umbracoEvent.EventLocation ?? "");
                     item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", "Umbraco Community");
-                    item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
+                    item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "manual");
                     item.ElementExtensions.Add(new XElement(
                         XName.Get("hqOrganizedEvent", "https://umbracalendar.com/rss/"),
                         umbracoEvent.HqOrganizedEvent.ToString().ToLower()));
@@ -154,7 +154,7 @@ public class RssController : RenderController
             
             item.ElementExtensions.Add("location", "http://purl.org/rss/1.0/modules/event/", location);
             item.ElementExtensions.Add("organizer", "http://purl.org/rss/1.0/modules/event/", meetupEvent.Group?.Name ?? "");
-            item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", meetupEvent.EventType?.ToLower() ?? "meetup");
+            item.ElementExtensions.Add("type", "http://purl.org/rss/1.0/modules/event/", "meetup");
             item.ElementExtensions.Add(new XElement(
                 XName.Get("hqOrganizedEvent", "https://umbracalendar.com/rss/"),
                 "false"));
