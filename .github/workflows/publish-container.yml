@@ -31,7 +31,18 @@ jobs:
 
           - name: 'Build umbracalendar.site Image'
             run: |
-              docker buildx build . --platform=linux/arm64 --build-arg GIT_SHA=${{ github.sha }} --tag ghcr.io/nul800sebastiaan/umbracalendar.site:latest
+              docker buildx build . --platform=linux/arm64 \
+                --build-arg GIT_SHA=${{ github.sha }} \
+                --tag ghcr.io/nul800sebastiaan/umbracalendar.site:latest \
+                --tag ghcr.io/nul800sebastiaan/umbracalendar.site:${{ github.sha }}
               docker push ghcr.io/nul800sebastiaan/umbracalendar.site:latest
+              docker push ghcr.io/nul800sebastiaan/umbracalendar.site:${{ github.sha }}
+
+          - name: 'Prune old package versions (keep last 10)'
+            uses: actions/delete-package-versions@v5
+            with:
+              package-name: 'umbracalendar.site'
+              package-type: 'container'
+              min-versions-to-keep: 10
 
 
