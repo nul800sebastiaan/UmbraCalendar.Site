@@ -9,8 +9,7 @@ using UmbraCalendar.Meetup.Models.Areas;
 using UmbraCalendar.Meetup.Models.Events;
 using UmbraCalendar.Meetup.Models.Groups;
 using Umbraco.AuthorizedServices.Services;
-using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Extensions;
 
 namespace UmbraCalendar.Meetup;
@@ -20,20 +19,20 @@ public class MeetupService : IMeetupService
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
     private readonly IDatabaseService _databaseService;
     private readonly IWebHostEnvironment _hostingEnvironment;
-    private readonly IUmbracoContextFactory _umbracoContextFactory;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IContentService _contentService;
+    private readonly IContentTypeService _contentTypeService;
 
     public MeetupService(IAuthorizedServiceCaller authorizedServiceCaller,
 	    IDatabaseService databaseService,
 	    IWebHostEnvironment hostingEnvironment,
-	    IUmbracoContextFactory umbracoContextFactory,
-	    IServiceProvider serviceProvider)
+	    IContentService contentService,
+	    IContentTypeService contentTypeService)
     {
 	    _authorizedServiceCaller = authorizedServiceCaller;
 	    _databaseService = databaseService;
 	    _hostingEnvironment = hostingEnvironment;
-	    _umbracoContextFactory = umbracoContextFactory;
-	    _serviceProvider = serviceProvider;
+	    _contentService = contentService;
+	    _contentTypeService = contentTypeService;
     }
 
     public void GetUpcomingMeetupEvents(PerformContext context)
@@ -171,18 +170,29 @@ public class MeetupService : IMeetupService
     {
 	    context.WriteLine("Starting");
 
-	    List<string> entries;
-	    using (_umbracoContextFactory.EnsureUmbracoContext())
-	    using (var serviceScope = _serviceProvider.CreateScope())
+	    // Read from IContentService (database-backed) rather than the published cache:
+	    // this job runs on a Hangfire background thread where the published-content
+	    // navigation cache is not reliably available.
+	    var eventsContentType = _contentTypeService.Get("events");
+	    if (eventsContentType == null)
 	    {
-		    var query = serviceScope.ServiceProvider.GetRequiredService<IPublishedContentQuery>();
-		    var rootNode = query.ContentAtRoot().FirstOrDefault();
-		    var eventsNode = rootNode?.Children().FirstOrDefault(x => x.ContentType.Alias == "events");
-		    var rawValue = eventsNode?.GetProperty("adHocMeetupEvents")?.GetValue() as string;
-		    entries = (rawValue ?? string.Empty)
-			    .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-			    .ToList();
+		    context.WriteLine("Could not find the 'events' document type, nothing to do");
+		    return;
 	    }
+
+	    var eventsNodes = _contentService
+		    .GetPagedOfType(eventsContentType.Id, 0, 100, out _, null)
+		    .Where(x => x.Published)
+		    .ToList();
+
+	    var entries = eventsNodes
+		    .Select(x => x.GetValue<string>("adHocMeetupEvents"))
+		    .Where(v => !string.IsNullOrWhiteSpace(v))
+		    .SelectMany(v => v!.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		    .Distinct()
+		    .ToList();
+
+	    context.WriteLine($"Found {eventsNodes.Count} published Events node(s), {entries.Count} ad-hoc event ent(ies) configured");
 
 	    if (entries.Count == 0)
 	    {
