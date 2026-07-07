@@ -41,6 +41,10 @@ public class Scheduler : IComposer
             RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import upcoming Umbraco Meetup events", x =>
                 x.ImportUpcomingMeetupEvents(null), "0 */4 * * *");
 
+            // Ad-hoc single events (from the "Ad-hoc Meetup events" property on the Events page) - every 4 hours at :30
+            RecurringJob.AddOrUpdate<IMeetupService>($"➡️ Import ad-hoc Meetup events", x =>
+                x.ImportAdHocMeetupEvents(null), GetTiming("30 */4 * * *"));
+
             // Pro network groups - daily at 3:00 AM (avoids main import times)
             RecurringJob.AddOrUpdate<IMeetupService>($"️➡️ Import Umbraco pro network Meetup groups", x =>
                 x.ImportNetworkGroups(null), "0 3 * * *");

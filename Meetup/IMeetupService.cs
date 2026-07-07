@@ -13,5 +13,7 @@ public interface IMeetupService
     Task<List<MeetupArea>> GetAvailableAreas();
     Task ImportMeetupGroup(PerformContext context, string urlName);
     Task ImportMeetupEventsForGroup(PerformContext context, string urlName, string type = "upcoming");
+    Task ImportAdHocMeetupEvents(PerformContext context);
+    Task ImportSingleMeetupEvent(PerformContext context, string eventIdOrUrl);
     Task TryForceRefreshToken(PerformContext context);
 }

@@ -9,6 +9,9 @@ using UmbraCalendar.Meetup.Models.Areas;
 using UmbraCalendar.Meetup.Models.Events;
 using UmbraCalendar.Meetup.Models.Groups;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 namespace UmbraCalendar.Meetup;
 
@@ -17,14 +20,20 @@ public class MeetupService : IMeetupService
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
     private readonly IDatabaseService _databaseService;
     private readonly IWebHostEnvironment _hostingEnvironment;
+    private readonly IUmbracoContextFactory _umbracoContextFactory;
+    private readonly IServiceProvider _serviceProvider;
 
     public MeetupService(IAuthorizedServiceCaller authorizedServiceCaller,
 	    IDatabaseService databaseService,
-	    IWebHostEnvironment hostingEnvironment)
+	    IWebHostEnvironment hostingEnvironment,
+	    IUmbracoContextFactory umbracoContextFactory,
+	    IServiceProvider serviceProvider)
     {
 	    _authorizedServiceCaller = authorizedServiceCaller;
 	    _databaseService = databaseService;
 	    _hostingEnvironment = hostingEnvironment;
+	    _umbracoContextFactory = umbracoContextFactory;
+	    _serviceProvider = serviceProvider;
     }
 
     public void GetUpcomingMeetupEvents(PerformContext context)
@@ -158,53 +167,148 @@ public class MeetupService : IMeetupService
         }
     }
 
+    public async Task ImportAdHocMeetupEvents(PerformContext context)
+    {
+	    context.WriteLine("Starting");
+
+	    List<string> entries;
+	    using (_umbracoContextFactory.EnsureUmbracoContext())
+	    using (var serviceScope = _serviceProvider.CreateScope())
+	    {
+		    var query = serviceScope.ServiceProvider.GetRequiredService<IPublishedContentQuery>();
+		    var rootNode = query.ContentAtRoot().FirstOrDefault();
+		    var eventsNode = rootNode?.Children().FirstOrDefault(x => x.ContentType.Alias == "events");
+		    var rawValue = eventsNode?.GetProperty("adHocMeetupEvents")?.GetValue() as string;
+		    entries = (rawValue ?? string.Empty)
+			    .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			    .ToList();
+	    }
+
+	    if (entries.Count == 0)
+	    {
+		    context.WriteLine("No ad-hoc events configured on the Events page, nothing to do");
+		    return;
+	    }
+
+	    foreach (var entry in entries)
+	    {
+		    await ImportSingleMeetupEvent(context, entry);
+	    }
+    }
+
+    public async Task ImportSingleMeetupEvent(PerformContext context, string eventIdOrUrl)
+    {
+	    var eventId = ExtractEventId(eventIdOrUrl);
+	    if (eventId == null)
+	    {
+		    context.WriteLine($"Could not determine an event id from '{eventIdOrUrl}', skipping");
+		    return;
+	    }
+
+	    var query = $$"""
+	                  query($eventId: ID!) {
+	                  	 event(id: $eventId) {
+	                  	   {{GetEventNodeFields()}}
+	                  	 }
+	                  }
+	                  """;
+
+	    var requestContent = new MeetupRequest
+	    {
+		    Query = query,
+		    Variables = new { eventId }
+	    };
+
+	    // Can't await this one because the context.Writeline doesn't work then
+	    var response = _authorizedServiceCaller.SendRequestAsync<MeetupRequest, MeetupEvents>(
+		    "meetup",
+		    "/gql-ext",
+		    HttpMethod.Post,
+		    requestContent
+	    ).Result;
+
+	    // if response.Result.Data.Event is null, the event doesn't exist (any more)
+	    if (response.Success && response.Result?.Data?.Data.Event != null)
+	    {
+		    var meetupEvent = response.Result.Data.Data.Event;
+		    context.WriteLine(
+			    $"[AD-HOC] Meetup group {meetupEvent.Group.UrlName} has an event in {meetupEvent.Venue?.Name ?? "[online?]"} on {meetupEvent.StartDateLocal} titled {meetupEvent.Title} - more info: {meetupEvent.EventUrl}");
+		    await FetchAllRsvpsForEvent(meetupEvent, context);
+		    await _databaseService.UpsertItemAsync(meetupEvent, Constants.MeetupEventsContainerId);
+	    }
+	    else
+	    {
+		    context.WriteLine($"Something went wrong fetching event {eventId}, error: '{response.Exception?.Message}', trace: '{response.Exception?.StackTrace}'");
+	    }
+    }
+
+    private static string? ExtractEventId(string eventIdOrUrl)
+    {
+	    var trimmed = eventIdOrUrl.Trim().TrimEnd('/');
+	    if (trimmed.Length > 0 && trimmed.All(char.IsDigit))
+	    {
+		    return trimmed;
+	    }
+
+	    // Meetup event URL, e.g. https://www.meetup.com/some-group/events/315225495/
+	    var match = System.Text.RegularExpressions.Regex.Match(trimmed, @"/events/(\d+)");
+	    return match.Success ? match.Groups[1].Value : null;
+    }
+
     private static string GetEventDataQuery()
     {
-	    const string eventDataQuery = """
-	                              totalCount
-	                              pageInfo { endCursor hasNextPage }
-	                              edges {
-	                                node {
-	                                  id
-	                             	 title
-	                             	 dateTime
-	                             	 duration
-	                             	 endTime
-	                             	 eventUrl
-	                             	 description
-	                             	 eventType
-	                             	 status
-	                             	 createdTime
-	                             	 venues { name address city state postalCode country lat lon }
-	                             	 group { keyGroupPhoto { id baseUrl } country city urlname name timezone }
-	                             	 featuredEventPhoto { id baseUrl }
-	                             	 rsvps(first: 100) {
-	                             	   pageInfo {
-	                             	     hasNextPage
-	                             	     endCursor
-	                             	   }
-	                             	   edges {
-	                             	     node {
-	                             	       id
-	                             	       member {
-	                             	         id
-	                             	         name
-	                             	         city
-	                             	         state
-	                             	         zip
-	                             	         country
-	                             	         bio
-	                             	         memberPhoto {
-	                             	           baseUrl
-	                             	         }
-	                             	       }
-	                             	     }
-	                             	   }
-	                             	 }
-	                                }
-	                              }
+	    return $$"""
+	             totalCount
+	             pageInfo { endCursor hasNextPage }
+	             edges {
+	               node {
+	                 {{GetEventNodeFields()}}
+	               }
+	             }
+	             """;
+    }
+
+    private static string GetEventNodeFields()
+    {
+	    const string eventNodeFields = """
+	                             id
+	                             title
+	                             dateTime
+	                             duration
+	                             endTime
+	                             eventUrl
+	                             description
+	                             eventType
+	                             status
+	                             createdTime
+	                             venues { name address city state postalCode country lat lon }
+	                             group { keyGroupPhoto { id baseUrl } country city urlname name timezone }
+	                             featuredEventPhoto { id baseUrl }
+	                             rsvps(first: 100) {
+	                               pageInfo {
+	                                 hasNextPage
+	                                 endCursor
+	                               }
+	                               edges {
+	                                 node {
+	                                   id
+	                                   member {
+	                                     id
+	                                     name
+	                                     city
+	                                     state
+	                                     zip
+	                                     country
+	                                     bio
+	                                     memberPhoto {
+	                                       baseUrl
+	                                     }
+	                                   }
+	                                 }
+	                               }
+	                             }
 	                             """;
-	    return eventDataQuery;
+	    return eventNodeFields;
     }
 
     private async Task FetchAllRsvpsForEvent(MeetupEvent meetupEvent, PerformContext context)

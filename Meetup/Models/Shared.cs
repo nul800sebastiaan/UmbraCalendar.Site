@@ -9,7 +9,10 @@ public class Data
     
     [JsonPropertyName("groupByUrlname")]
     public Groups.MeetupGroup GroupByUrlname { get; set; }
-    
+
+    [JsonPropertyName("event")]
+    public Events.MeetupEvent Event { get; set; }
+
     // Backward compatibility properties
     [JsonIgnore]
     public ProNetwork MeetupNetwork => ProNetwork;
